@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputerStore - Mua sắm máy tính chính hãng</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="top-bar">
+            <div class="container flex-between">
+                <a href="index.html" class="logo">
+                    🛒 ComputerStore
+                </a>
+                <div class="search-box">
+                    <input type="text" placeholder="Bạn cần tìm gì...">
+                    <button type="submit">🔍</button>
+                </div>
+                <div class="user-actions" id="auth-section">
+                    <a href="login.html" class="icon-link">👤 Đăng nhập</a>
+                    <a href="#" class="cart-btn">Giỏ hàng <br><span class="cart-count">0</span> Sản phẩm</a>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="container flex-start">
+                <a href="index.html">Trang chủ</a>
+                <a href="#">Sản phẩm ▾</a>
+                <a href="#">Blog</a>
+                <a href="#">Giới thiệu</a>
+                <a href="#">Hệ thống cửa hàng</a>
+                <a href="#" class="promo-link">🎁 Khuyến mãi hôm nay</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="container hero-banner">
+            <div class="banner-placeholder">
+                <h2>Banner Quảng Cáo Lớn (Ảnh iPhone/Laptop)</h2>
+            </div>
+        </section>
+
+        <section class="container category-section">
+            <h3 class="section-title">Danh mục sản phẩm</h3>
+            <div class="category-grid">
+                <div class="cat-item">💻 Laptop</div>
+                <div class="cat-item">🖥️ PC - Lắp ráp</div>
+                <div class="cat-item">📱 Điện thoại</div>
+                <div class="cat-item">🎧 Phụ kiện</div>
+                <div class="cat-item">⚙️ Linh kiện</div>
+            </div>
+        </section>
+
+        <section class="container flash-sale-section">
+            <div class="flash-sale-header">
+                <h2>⚡ GIỜ VÀNG GIÁ SỐC</h2>
+            </div>
+            <div id="product-list" class="product-grid">
+                <p style="text-align: center; width: 100%; color: white;">Đang tải sản phẩm...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h3 class="footer-logo">🛒 ComputerStore</h3>
+                <p>Địa chỉ uy tín chuyên cung cấp các sản phẩm máy tính, điện thoại, phụ kiện chính hãng với giá tốt nhất.</p>
+                <p><strong>Địa chỉ:</strong> 123 Đường Công Nghệ, TP.HCM</p>
+                <p><strong>Điện thoại:</strong> 1900 1234</p>
+            </div>
+            <div class="footer-col">
+                <h4>Chính sách</h4>
+                <a href="#">Trang chủ</a>
+                <a href="#">Sản phẩm</a>
+                <a href="#">Khuyến mãi</a>
+            </div>
+            <div class="footer-col">
+                <h4>Hướng dẫn</h4>
+                <a href="#">Hướng dẫn mua hàng</a>
+                <a href="#">Giao hàng & Thanh toán</a>
+                <a href="#">Chính sách bảo hành</a>
+            </div>
+            <div class="footer-col">
+                <h4>Thanh toán</h4>
+                <p>Visa, MasterCard, Momo, ZaloPay...</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© Bản quyền thuộc về ComputerStore.</p>
+        </div>
+    </footer>
+
+    <script>const API_URL = 'http://127.0.0.1:3000/api';</script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/home.js"></script>
+</body>
+</html>
