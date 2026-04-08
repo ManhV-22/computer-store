@@ -1,4 +1,4 @@
-// const API_URL = 'http://localhost:3000/api'; // Đảm bảo đã khai báo API_URL
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
