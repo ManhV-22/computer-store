@@ -1,1 +1,187 @@
-<!-- cart.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - ComputerStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* CSS CHUYÊN BIỆT CHO TRANG GIỎ HÀNG */
+        body { background-color: #f4f7f6; color: #333; }
+        
+        /* Breadcrumb */
+        .breadcrumb { padding: 15px 0; font-size: 0.95rem; color: #7f8c8d; }
+        .breadcrumb a { color: #3498db; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        
+        /* Bố cục trang */
+        .cart-page { display: grid; grid-template-columns: 7fr 3fr; gap: 30px; margin-bottom: 50px; align-items: start; }
+        
+        /* Cột trái: Danh sách sản phẩm */
+        .cart-main { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 1px 10px rgba(0,0,0,0.05); }
+        .cart-header-title { font-size: 1.4rem; font-weight: bold; border-bottom: 2px solid #f1f2f6; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        
+        .cart-item { display: grid; grid-template-columns: 100px 1fr 150px auto; gap: 20px; align-items: center; padding: 20px 0; border-bottom: 1px solid #eee; }
+        .cart-item:last-child { border-bottom: none; }
+        .item-img-box { width: 100px; height: 100px; border: 1px solid #eee; border-radius: 8px; padding: 5px; display: flex; justify-content: center; align-items: center; background: #fff; }
+        .item-img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .item-details h4 { margin: 0 0 5px 0; font-size: 1.1rem; color: #2c3e50; line-height: 1.4; }
+        .item-meta { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 8px; display: flex; gap: 15px; }
+        .item-stock { color: #27ae60; font-weight: bold; font-size: 0.85rem; }
+        
+        .item-prices { text-align: right; }
+        .price-current { font-weight: bold; color: #e74c3c; font-size: 1.1rem; margin-bottom: 5px; }
+        .price-old { text-decoration: line-through; color: #95a5a6; font-size: 0.9rem; }
+        
+        .item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
+        .quantity-control { display: flex; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
+        .quantity-control button { background: #f8f9fa; border: none; width: 32px; height: 32px; cursor: pointer; font-weight: bold; color: #555; transition: 0.2s; }
+        .quantity-control button:hover { background: #e2e6ea; }
+        .quantity-control input { width: 45px; text-align: center; border: none; border-left: 1px solid #ddd; border-right: 1px solid #ddd; font-weight: bold; color: #333; outline: none; }
+        
+        .btn-remove { background: none; border: none; color: #95a5a6; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; transition: 0.2s; }
+        .btn-remove:hover { color: #e74c3c; }
+
+        /* Cột phải: Sidebar thanh toán */
+        .cart-sidebar { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 1px 10px rgba(0,0,0,0.05); position: sticky; top: 20px; }
+        
+        /* Mã giảm giá */
+        .coupon-box { border-bottom: 1px dashed #ddd; padding-bottom: 20px; margin-bottom: 20px; }
+        .coupon-box h4 { margin-top: 0; font-size: 1rem; color: #333; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .coupon-input-group { display: flex; gap: 10px; }
+        .coupon-input-group input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none; }
+        .coupon-input-group input:focus { border-color: #3498db; }
+        .coupon-input-group button { padding: 0 20px; background: #34495e; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* Tóm tắt tiền */
+        .summary-line { display: flex; justify-content: space-between; margin-bottom: 15px; color: #555; font-size: 0.95rem; }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-weight: bold; font-size: 1.1rem; align-items: center; }
+        .total-price { color: #e74c3c; font-size: 1.6rem; }
+        .vat-note { text-align: right; font-size: 0.8rem; color: #7f8c8d; margin-top: 5px; font-weight: normal; }
+        
+        .btn-checkout { display: block; width: 100%; text-align: center; padding: 16px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; transition: 0.3s; text-decoration: none; }
+        .btn-checkout:hover { background: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); }
+        
+        .trust-badges { display: flex; justify-content: center; gap: 15px; margin-top: 20px; color: #7f8c8d; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="top-bar">
+            <div class="container flex-between">
+                <a href="index.html" class="logo">🛒 ComputerStore</a>
+                <div class="search-box">
+                    <input type="text" placeholder="Bạn cần tìm gì...">
+                    <button type="submit">🔍</button>
+                </div>
+                <div class="user-actions" id="auth-section">
+                    <a href="login.html" class="icon-link">👤 Đăng nhập</a>
+                    <a href="cart.html" class="cart-btn" style="color: #e74c3c;">Giỏ hàng <br><span class="cart-count">2</span> Sản phẩm</a>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="container flex-start">
+                <a href="index.html">Trang chủ</a>
+                <a href="#">Sản phẩm ▾</a>
+                <a href="#">Blog</a>
+                <a href="#">Giới thiệu</a>
+                <a href="#">Hệ thống cửa hàng</a>
+                <a href="#" class="promo-link">🎁 Khuyến mãi hôm nay</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &nbsp; / &nbsp; <strong>Giỏ hàng</strong>
+        </nav>
+    </div>
+
+    <main class="container cart-page">
+        <div class="cart-main">
+            <div class="cart-header-title">
+                <span>Giỏ hàng của bạn</span>
+                <span style="font-size: 1rem; font-weight: normal; color: #7f8c8d;">(<span id="cart-item-count">0</span> sản phẩm)</span>
+            </div>
+            
+            <div id="cart-items-wrapper">
+                </div>
+        </div>
+
+        <div class="cart-sidebar">
+            <div class="coupon-box">
+                <h4>🎟️ Khuyến mãi</h4>
+                <div class="coupon-input-group">
+                    <input type="text" id="coupon-code" placeholder="Nhập mã giảm giá">
+                    <button onclick="applyCoupon()">Áp dụng</button>
+                </div>
+                <div id="coupon-message" style="margin-top: 10px; font-size: 0.85rem;"></div>
+            </div>
+
+            <h4 style="margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">Thanh toán</h4>
+            
+            <div class="summary-line">
+                <span>Tạm tính</span>
+                <span id="subtotal-price">0đ</span>
+            </div>
+            <div class="summary-line">
+                <span>Phí giao hàng</span>
+                <span style="color: #27ae60;">Miễn phí</span>
+            </div>
+            <div class="summary-line">
+                <span>Giảm giá</span>
+                <span id="discount-price" style="color: #e74c3c;">0đ</span>
+            </div>
+            
+            <div class="summary-total">
+                <div>
+                    <span>Tổng cộng</span>
+                    <div class="vat-note">(Đã bao gồm VAT nếu có)</div>
+                </div>
+                <span class="total-price" id="final-price">0đ</span>
+            </div>
+
+            <a href="checkout.html" class="btn-checkout">TIẾN HÀNH ĐẶT HÀNG</a>
+            
+            <div class="trust-badges">
+                <span>🛡️ Bảo mật SSL</span>
+                <span>🔄 Đổi trả 7 ngày</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h3 class="footer-logo">🛒 ComputerStore</h3>
+                <p>Địa chỉ uy tín chuyên cung cấp các sản phẩm máy tính, điện thoại, phụ kiện chính hãng với giá tốt nhất.</p>
+                <p><strong>Địa chỉ:</strong> 123 Đường Công Nghệ, TP.HCM</p>
+                <p><strong>Điện thoại:</strong> 1900 1234</p>
+            </div>
+            <div class="footer-col">
+                <h4>Chính sách</h4>
+                <a href="#">Trang chủ</a>
+                <a href="#">Sản phẩm</a>
+                <a href="#">Khuyến mãi</a>
+            </div>
+            <div class="footer-col">
+                <h4>Hướng dẫn</h4>
+                <a href="#">Hướng dẫn mua hàng</a>
+                <a href="#">Giao hàng & Thanh toán</a>
+                <a href="#">Chính sách bảo hành</a>
+            </div>
+            <div class="footer-col">
+                <h4>Thanh toán</h4>
+                <p>Visa, MasterCard, Momo, ZaloPay...</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© Bản quyền thuộc về ComputerStore.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/cart.js"></script>
+</body>
+</html>

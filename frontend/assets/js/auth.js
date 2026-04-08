@@ -8,9 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
+
+            console.log("Đang gọi đến API:", API_URL);
+        console.log("Dữ liệu nhập vào:", email, password);
 
             try {
                 const response = await fetch(`${API_URL}/users/login`, {

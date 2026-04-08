@@ -34,6 +34,7 @@ exports.register = (req, res) => {
 exports.login = (req, res) => {
     const { email, password } = req.body;
 
+    console.log(`[BACKEND] Đang thử đăng nhập với email: ${email}`)
     User.findByEmail(email, async (err, results) => {
         if (err) return res.status(500).json({ message: "Lỗi máy chủ" });
         
