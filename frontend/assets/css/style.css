@@ -50,3 +50,147 @@ a { text-decoration: none; color: inherit; }
 .footer-col h3, .footer-col h4 { margin-bottom: 15px; color: white; }
 .footer-col p, .footer-col a { color: #aaa; font-size: 14px; display: block; margin-bottom: 10px; }
 .footer-bottom { background: #d70018; text-align: center; padding: 15px; margin-top: 20px; font-weight: bold; }
+
+/* ==========================================
+   CSS CHO HEADER CHUNG
+   ========================================== */
+
+/* Cài đặt chung */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* --- 1. Thanh Top Bar (Màu đỏ) --- */
+.header-top { 
+    background-color: #d70018; 
+    padding: 10px 0; 
+    color: white; 
+}
+
+.logo { 
+    color: white; 
+    text-decoration: none; 
+    font-size: 24px; 
+    font-weight: bold; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+/* Thanh tìm kiếm */
+.search-box { 
+    flex: 1; 
+    max-width: 550px; 
+    margin: 0 30px; 
+    display: flex; 
+    background: white; 
+    border-radius: 5px; 
+    overflow: hidden; 
+}
+.search-box input { 
+    flex: 1; 
+    border: none; 
+    padding: 10px 15px; 
+    outline: none; 
+}
+.search-box button { 
+    background: #fff; 
+    border: none; 
+    padding: 0 15px; 
+    cursor: pointer; 
+    color: #333; 
+    font-size: 18px;
+}
+
+/* Khu vực User & Cart */
+.header-actions { display: flex; gap: 20px; align-items: center; }
+
+.action-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    color: white; 
+    text-decoration: none; 
+    font-size: 14px; 
+    position: relative;
+    cursor: pointer;
+}
+
+.action-item .icon { font-size: 20px; }
+
+/* Badge số lượng giỏ hàng */
+.cart-badge { 
+    position: absolute; 
+    top: -8px; 
+    right: -10px; 
+    background: #ffb400; 
+    color: #333; 
+    font-size: 11px; 
+    font-weight: bold; 
+    padding: 2px 6px; 
+    border-radius: 50%; 
+    border: 2px solid #d70018; 
+}
+
+/* Dropdown Đăng xuất */
+.user-menu { position: relative; }
+.dropdown-content { 
+    display: none; 
+    position: absolute; 
+    top: 130%; 
+    right: 0; 
+    background: white; 
+    min-width: 140px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+    border-radius: 4px;
+    z-index: 1000;
+}
+.user-menu:hover .dropdown-content { display: block; }
+.dropdown-content a { 
+    color: #333; 
+    padding: 12px; 
+    text-decoration: none; 
+    display: block; 
+    font-weight: 600;
+    text-align: center;
+}
+.dropdown-content a:hover { background: #f5f5f5; color: #d70018; }
+
+/* --- 2. Thanh Menu (Màu trắng) --- */
+.header-bottom { 
+    background: white; 
+    border-bottom: 1px solid #eee; 
+    padding: 5px 0;
+}
+
+.main-menu { 
+    list-style: none; 
+    display: flex; 
+    gap: 25px; 
+}
+.main-menu li a { 
+    text-decoration: none; 
+    color: #333; 
+    font-size: 14px; 
+    font-weight: 600; 
+    padding: 10px 0;
+    display: block;
+    transition: 0.3s;
+}
+.main-menu li a:hover { color: #d70018; }
+
+/* Nút Khuyến mãi */
+.promo-link { 
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #d70018; 
+    text-decoration: none; 
+    font-weight: bold; 
+    font-size: 14px; 
+    border: 1px solid #d70018; 
+    padding: 6px 15px; 
+    border-radius: 5px; 
+}
+.promo-link:hover { background: #d70018; color: white; }

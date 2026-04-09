@@ -23,8 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Dùng .map() để tạo mảng các chuỗi HTML, sau đó .join('') để nối chúng lại
                 const htmlTemplate = products.map(product => `
                     <div class="product-card" style="border: 1px solid #e0e0e0; border-radius: 8px; width: 220px; padding: 15px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-                        <img src="${product.image || 'https://via.placeholder.com/200'}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
-                        <h3 style="font-size: 16px; color: #333; margin-bottom: 10px; height: 40px; overflow: hidden;">${product.name}</h3>
+                        <a href="detail.html?id=${product.id}">
+                            <img src="${product.image || 'https://via.placeholder.com/200'}" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;">
+                        </a>
+                        <h3 style="font-size: 16px; color: #333; margin-bottom: 10px; height: 40px; overflow: hidden;">
+                            <a href="detail.html?id=${product.id}" style="text-decoration: none; color: inherit;">${product.name}</a>
+                        </h3>
                         <p style="color: #d70018; font-weight: bold; font-size: 18px; margin-bottom: 15px;">
                             ${Number(product.price).toLocaleString('vi-VN')} đ
                         </p>

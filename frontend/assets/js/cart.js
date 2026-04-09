@@ -1,27 +1,30 @@
-// Lấy dữ liệu thực tế từ localStorage (bỏ mảng mock data cũ đi)
+// Lấy dữ liệu thực tế từ localStorage
 let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
 let discountAmount = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderCart();
+    // Đợi một chút để Header kịp load xong rồi mới render giỏ hàng
+    setTimeout(() => {
+        renderCart();
+    }, 100); 
 });
 
 function renderCart() {
     const wrapper = document.getElementById('cart-items-wrapper');
     const countLabel = document.getElementById('cart-item-count');
+    const headerCartCount = document.getElementById('cart-count'); // Sửa thành ID
     
-    // ... (Giữ nguyên đoạn HTML in ra giỏ hàng trống và duyệt mảng in ra sản phẩm)
-    // Để tiết kiệm không gian, đoạn in HTML trong hàm này giữ y hệt như code cũ của bạn
-    
+    if (!wrapper) return;
+
     if (cartItems.length === 0) {
         wrapper.innerHTML = `
             <div style="text-align: center; padding: 40px 0;">
                 <h3 style="color: #7f8c8d;">Giỏ hàng của bạn đang trống</h3>
-                <a href="index.html" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 4px;">Tiếp tục mua sắm</a>
+                <a href="../pages/index.html" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #d70018; color: white; text-decoration: none; border-radius: 4px;">Tiếp tục mua sắm</a>
             </div>`;
         updateSummary(0);
-        countLabel.innerText = "0";
-        document.querySelector('.cart-count').innerText = "0";
+        if (countLabel) countLabel.innerText = "0";
+        if (headerCartCount) headerCartCount.innerText = "0";
         return;
     }
 
@@ -30,23 +33,23 @@ function renderCart() {
     let totalQty = 0;
 
     cartItems.forEach((item, index) => {
-        const itemTotal = item.price * item.quantity;
+        const itemTotal = (item.price || 0) * (item.quantity || 1);
         subtotal += itemTotal;
-        totalQty += item.quantity;
+        totalQty += (item.quantity || 1);
 
         const oldPriceHtml = item.oldPrice ? `<div class="price-old">${Number(item.oldPrice).toLocaleString('vi-VN')}đ</div>` : '';
 
         wrapper.innerHTML += `
             <div class="cart-item">
                 <div class="item-img-box">
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${item.image || '../assets/images/default-prod.png'}" alt="${item.name}">
                 </div>
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <div class="item-meta">
-                        <span>Mã SP: ${item.sku}</span>
+                        <span>Mã SP: ${item.sku || 'N/A'}</span>
                         <span>|</span>
-                        <span>Màu: ${item.color}</span>
+                        <span>Màu: ${item.color || 'Mặc định'}</span>
                     </div>
                     <div class="item-stock">✓ Còn hàng</div>
                 </div>
@@ -68,16 +71,15 @@ function renderCart() {
         `;
     });
 
-    countLabel.innerText = totalQty;
-    document.querySelector('.cart-count').innerText = totalQty;
+    if (countLabel) countLabel.innerText = totalQty;
+    if (headerCartCount) headerCartCount.innerText = totalQty;
     updateSummary(subtotal);
 }
 
-// CẬP NHẬT 2 HÀM NÀY ĐỂ ĐỒNG BỘ LOCALSTORAGE SAU MỖI THAO TÁC
 function updateQty(index, change) {
     if (cartItems[index].quantity + change >= 1) {
         cartItems[index].quantity += change;
-        localStorage.setItem('cart', JSON.stringify(cartItems)); // Lưu lại
+        localStorage.setItem('cart', JSON.stringify(cartItems));
         renderCart();
     }
 }
@@ -85,24 +87,29 @@ function updateQty(index, change) {
 function removeItem(index) {
     if (confirm("Bạn có chắc chắn muốn bỏ sản phẩm này?")) {
         cartItems.splice(index, 1);
-        localStorage.setItem('cart', JSON.stringify(cartItems)); // Lưu lại
+        localStorage.setItem('cart', JSON.stringify(cartItems));
         renderCart();
     }
 }
 
-// ... (Giữ nguyên các hàm updateSummary và applyCoupon cũ)
 function updateSummary(subtotal) {
     const finalTotal = subtotal - discountAmount;
     
-    document.getElementById('subtotal-price').innerText = Number(subtotal).toLocaleString('vi-VN') + 'đ';
-    document.getElementById('discount-price').innerText = discountAmount > 0 ? '-' + Number(discountAmount).toLocaleString('vi-VN') + 'đ' : '0đ';
-    document.getElementById('final-price').innerText = Number(finalTotal > 0 ? finalTotal : 0).toLocaleString('vi-VN') + 'đ';
+    const subtotalEl = document.getElementById('subtotal-price');
+    const discountEl = document.getElementById('discount-price');
+    const finalEl = document.getElementById('final-price');
+
+    if (subtotalEl) subtotalEl.innerText = Number(subtotal).toLocaleString('vi-VN') + 'đ';
+    if (discountEl) discountEl.innerText = discountAmount > 0 ? '-' + Number(discountAmount).toLocaleString('vi-VN') + 'đ' : '0đ';
+    if (finalEl) finalEl.innerText = Number(finalTotal > 0 ? finalTotal : 0).toLocaleString('vi-VN') + 'đ';
 }
 
 function applyCoupon() {
     const code = document.getElementById('coupon-code').value.trim().toUpperCase();
     const messageBox = document.getElementById('coupon-message');
     
+    if (!messageBox) return;
+
     if (code === 'GIAM50K') {
         discountAmount = 50000;
         messageBox.innerHTML = '<span style="color: #27ae60;">✓ Đã áp dụng giảm 50.000đ</span>';
@@ -110,7 +117,7 @@ function applyCoupon() {
         messageBox.innerHTML = '<span style="color: #e74c3c;">Vui lòng nhập mã</span>';
     } else {
         discountAmount = 0;
-        messageBox.innerHTML = '<span style="color: #e74c3c;">✗ Mã không hợp lệ hoặc đã hết hạn</span>';
+        messageBox.innerHTML = '<span style="color: #e74c3c;">✗ Mã không hợp lệ</span>';
     }
     renderCart();
 }
