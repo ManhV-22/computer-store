@@ -57,25 +57,36 @@ function updateAuthUI() {
     const userDropdown = document.getElementById('user-dropdown');
     const user = JSON.parse(localStorage.getItem('user'));
 
+    // Kiểm tra xem chúng ta đang ở trang chủ hay trong thư mục /pages/
+    const isInsidePages = window.location.pathname.includes('/pages/');
+    const pathPrefix = isInsidePages ? '' : 'pages/';
+
     if (user && userNameElement) {
-        // Đã đăng nhập
+        // --- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP ---
         userNameElement.innerText = user.name;
-        userNameElement.parentElement.onclick = null; // Bỏ sự kiện click chuyển sang login
+        userNameElement.parentElement.onclick = null; 
         
-        // Thêm nút Đăng xuất vào dropdown
         if (userDropdown) {
-            userDropdown.innerHTML = `<a href="#" onclick="logout(); return false;" style="display: block; padding: 12px 15px; color: #333; text-decoration: none; border-top: 1px solid #eee; background: #fff; text-align: center; font-weight: bold;">Đăng xuất</a>`;
+            // Thêm nút Đơn hàng và nút Đăng xuất
+            userDropdown.innerHTML = `
+                <a href="${pathPrefix}orders.html" style="display: block; padding: 12px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">📦 Đơn hàng của tôi</a>
+                <a href="#" onclick="logout(); return false;" style="display: block; padding: 12px 15px; color: #d70018; text-decoration: none; font-weight: bold; text-align: center;">🚪 Đăng xuất</a>
+            `;
         }
     } else if (userNameElement) {
-        // Chưa đăng nhập
+        // --- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP ---
         userNameElement.innerText = "Đăng nhập";
         
-        // Bấm vào chữ Đăng nhập sẽ chuyển trang
         userNameElement.parentElement.onclick = () => {
-            window.location.href = 'login.html';
+            window.location.href = isInsidePages ? 'login.html' : 'pages/login.html';
         };
         
-        if (userDropdown) userDropdown.innerHTML = ''; 
+        if (userDropdown) {
+            userDropdown.innerHTML = `
+                <a href="${pathPrefix}login.html" style="display: block; padding: 12px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">Đăng nhập</a>
+                <a href="${pathPrefix}register.html" style="display: block; padding: 12px 15px; color: #333; text-decoration: none;">Đăng ký</a>
+            `;
+        }
     }
 }
 

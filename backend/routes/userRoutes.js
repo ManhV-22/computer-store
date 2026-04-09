@@ -40,12 +40,11 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // 1. Đảm bảo SELECT lấy cả cột role
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
 
         if (rows.length > 0) {
             const user = rows[0];
-            
-            // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong DB
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (isMatch) {
@@ -53,7 +52,13 @@ router.post('/login', async (req, res) => {
                     success: true,
                     message: "Đăng nhập thành công!",
                     token: "day_la_chuoi_token_gia_lap_123", 
-                    user: { id: user.id, name: user.name, email: user.email }
+                    // 2. PHẢI TRẢ VỀ ROLE Ở ĐÂY
+                    user: { 
+                        id: user.id, 
+                        name: user.name, 
+                        email: user.email,
+                        role: user.role // Thêm dòng này
+                    }
                 });
             } else {
                 res.status(401).json({ success: false, message: "Sai email hoặc mật khẩu!" });

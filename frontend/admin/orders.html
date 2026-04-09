@@ -1,1 +1,84 @@
-<!-- orders.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đơn hàng - ComputerStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Sidebar & Layout Style */
+        body { display: flex; min-height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; background: #f4f7f6; }
+        .sidebar { width: 260px; background: #2c3e50; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 20px; text-align: center; background: #1a252f; font-size: 1.2rem; font-weight: bold; color: #e74c3c; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #bdc3c7; text-decoration: none; transition: 0.3s; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #34495e; color: white; border-left: 4px solid #e74c3c; }
+        
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        
+        /* Table Style */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        tr:hover { background: #fcfcfc; }
+        
+        /* Status Colors */
+        .status-select { padding: 5px; border-radius: 4px; border: 1px solid #ddd; }
+        .btn-detail { background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        /* Sidebar cố định bên trái */
+        .sidebar { 
+            width: 260px; 
+            background: #2c3e50; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            position: fixed; /* Giữ sidebar cố định khi cuộn trang */
+            top: 0; 
+            left: 0; 
+            height: 100vh; 
+            z-index: 1000;
+        }
+
+        /* Nội dung chính phải đẩy sang phải 260px */
+        .main-content { 
+            flex: 1; 
+            margin-left: 260px; /* Quan trọng: để không bị sidebar đè lên */
+            padding: 30px; 
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">COMPUTER ADMIN</div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="orders.html" class="active"><i class="fas fa-shopping-cart"></i> Quản lý đơn hàng</a></li>
+            <li class="admin-only"><a href="categories.html"><i class="fas fa-list"></i> Quản lý danh mục</a></li>
+            <li class="admin-only"><a href="products.html"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
+            <li class="admin-only"><a href="users.html"><i class="fas fa-users"></i> Quản lý người dùng</a></li>
+            <li class="admin-only"><a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <h2>📦 Danh sách đơn hàng toàn hệ thống</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Khách hàng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="admin-orders-list">
+                </tbody>
+        </table>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

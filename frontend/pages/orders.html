@@ -1,1 +1,195 @@
-<!-- orders.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - ComputerStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .orders-page { margin: 40px 0; }
+        .order-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 15px; }
+        .order-id { font-weight: bold; color: #2c3e50; }
+        .order-date { color: #7f8c8d; font-size: 0.9rem; }
+        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .order-body { display: flex; justify-content: space-between; align-items: center; }
+        .order-total { font-size: 1.1rem; font-weight: bold; color: #e74c3c; }
+        .no-orders { text-align: center; padding: 50px; background: #fff; border-radius: 8px; }
+        /* Style cho Modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 600px;
+            max-width: 90%;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            right: 20px; top: 15px;
+            font-size: 28px; font-weight: bold; cursor: pointer;
+        }
+        .order-item-detail {
+            display: flex; align-items: center; gap: 15px;
+            padding: 10px 0; border-bottom: 1px solid #eee;
+        }
+        .order-item-detail img { width: 60px; height: 60px; object-fit: contain; }
+        .btn-close {
+            margin-top: 15px; padding: 10px 20px;
+            background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer;
+        }
+        /* Tổng thể trang */
+        body {
+            background-color: #f8f9fa; /* Nền xám nhạt để card trắng nổi bật hơn */
+        }
+
+        .orders-page {
+            max-width: 850px; /* Thu hẹp độ rộng để tập trung ánh nhìn */
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .orders-page h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        /* Thẻ đơn hàng (Order Card) */
+        .order-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Đổ bóng nhẹ */
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px); /* Nổi lên khi di chuột */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #d70018;
+        }
+
+        /* Header của đơn hàng */
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f1f1;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .order-date {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Badge Trạng thái */
+        .order-status {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff8e1;
+            color: #f39c12;
+            border: 1px solid #ffeaa7;
+        }
+
+        /* Nội dung đơn hàng */
+        .order-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .order-info {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .view-detail-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #007bff;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .view-detail-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Cột tiền */
+        .order-total {
+            text-align: right;
+        }
+
+        .total-label {
+            font-size: 12px;
+            color: #999;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .total-amount {
+            font-size: 20px;
+            font-weight: 800;
+            color: #d70018; /* Màu đỏ thương hiệu */
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="container orders-page">
+        <h2>📦 Lịch sử mua hàng</h2>
+        <div id="orders-container">
+            <p>Đang tải danh sách đơn hàng...</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <div id="order-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>🛒 Chi tiết đơn hàng <span id="modal-order-id"></span></h3>
+            <hr>
+            <div id="modal-order-items">
+                </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn-close">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/orders.js"></script>
+</body>
+</html>
