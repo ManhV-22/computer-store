@@ -6,129 +6,37 @@
     <title>Chi tiết sản phẩm - ComputerStore</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        body { background-color: #f4f7f6; color: #333; }
-        .breadcrumb { padding: 15px 0; font-size: 0.95rem; color: #7f8c8d; }
-        .breadcrumb a { color: #3498db; text-decoration: none; }
-        
-        .product-detail-container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 1px 10px rgba(0,0,0,0.05); margin-bottom: 40px; }
-        .product-main { display: grid; grid-template-columns: 4fr 6fr; gap: 40px; }
-        
-        /* Cột trái: Hình ảnh */
-        .product-gallery img { width: 100%; border-radius: 8px; border: 1px solid #eee; }
-        .thumbnail-list { display: flex; gap: 10px; margin-top: 15px; }
-        .thumbnail-list img { width: 80px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; padding: 5px; }
-        .thumbnail-list img:hover, .thumbnail-list img.active { border-color: #e74c3c; }
-
-        /* Cột phải: Thông tin */
-        .product-info h1 { margin-top: 0; font-size: 1.8rem; color: #2c3e50; margin-bottom: 10px; }
-        .product-meta { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #eee; }
-        
-        .product-price-box { background: #fdf2f2; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .price-current { font-size: 2rem; color: #e74c3c; font-weight: bold; }
-        .price-old { text-decoration: line-through; color: #95a5a6; font-size: 1.1rem; margin-left: 15px; }
-
-        .product-variants { margin-bottom: 20px; }
-        .product-variants h4 { margin-bottom: 10px; font-size: 1rem; }
-        .color-btn { padding: 8px 15px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; margin-right: 10px; }
-        .color-btn.active { border-color: #e74c3c; color: #e74c3c; font-weight: bold; background: #fdf2f2; }
-
-        .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
-        .btn-add-cart { flex: 1; padding: 15px; background: #fff; color: #e74c3c; border: 2px solid #e74c3c; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-add-cart:hover { background: #fdf2f2; }
-        .btn-buy-now { flex: 1; padding: 15px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-buy-now:hover { background: #c0392b; }
-
-        /* Cấu hình & Bài viết */
-        .product-bottom { display: grid; grid-template-columns: 6fr 4fr; gap: 30px; margin-top: 40px; }
-        .section-box { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 1px 10px rgba(0,0,0,0.05); }
-        .section-box h3 { margin-top: 0; border-bottom: 2px solid #f1f2f6; padding-bottom: 10px; margin-bottom: 20px; }
-        
-        .spec-table { width: 100%; border-collapse: collapse; }
-        .spec-table tr:nth-child(odd) { background: #f9f9f9; }
-        .spec-table td { padding: 12px; border: 1px solid #eee; }
-        .spec-table td:first-child { width: 40%; font-weight: bold; color: #555; }
+        /* CSS cho trang chi tiết */
+        .detail-page { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .product-image-gallery img { width: 100%; border-radius: 8px; border: 1px solid #eee; object-fit: contain; max-height: 400px; padding: 20px; }
+        .product-info h1 { font-size: 1.8rem; color: #2c3e50; margin-top: 0; }
+        .product-meta { color: #7f8c8d; font-size: 0.95rem; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .product-price { font-size: 2rem; color: #e74c3c; font-weight: bold; margin: 20px 0; }
+        .product-description { line-height: 1.6; color: #555; margin-bottom: 30px; }
+        .specs-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .specs-table th, .specs-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .specs-table th { background-color: #f9f9f9; width: 30%; color: #333; }
+        .btn-add-cart-large { background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 1.1rem; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-add-cart-large:hover { background: #c0392b; }
     </style>
 </head>
 <body>
-    <header class="main-header" style="background: #fff; padding: 20px 0; border-bottom: 1px solid #ddd; text-align: center;">
-        <h2>🛒 ComputerStore - Chi Tiết Sản Phẩm</h2>
-    </header>
+    <header class="main-header">
+        <div id="auth-section"></div> </header>
 
     <div class="container">
         <nav class="breadcrumb">
-            <a href="index.html">Trang chủ</a> &nbsp; / &nbsp; <a href="#">Laptop</a> &nbsp; / &nbsp; <strong id="bread-name">Đang tải...</strong>
+            <a href="index.html">Trang chủ</a> &nbsp; / &nbsp; <strong id="breadcrumb-name">Đang tải...</strong>
         </nav>
     </div>
 
     <main class="container">
-        <div class="product-detail-container">
-            <div class="product-main">
-                <div class="product-gallery">
-                    <img id="main-image" src="https://via.placeholder.com/600/333/fff?text=Loading..." alt="Product">
-                    <div class="thumbnail-list">
-                        <img src="https://via.placeholder.com/200/333/fff?text=1" class="active" onclick="changeImage(this)">
-                        <img src="https://via.placeholder.com/200/555/fff?text=2" onclick="changeImage(this)">
-                        <img src="https://via.placeholder.com/200/777/fff?text=3" onclick="changeImage(this)">
-                    </div>
-                </div>
-
-                <div class="product-info">
-                    <h1 id="detail-name">Đang tải thông tin sản phẩm...</h1>
-                    <div class="product-meta">
-                        <span>Mã SP: <b id="detail-sku">...</b></span> &nbsp; | &nbsp; 
-                        <span>Tình trạng: <b style="color: #27ae60;">Còn hàng</b></span>
-                    </div>
-
-                    <div class="product-price-box">
-                        <span class="price-current" id="detail-price">0đ</span>
-                        <span class="price-old" id="detail-old-price"></span>
-                    </div>
-
-                    <div class="product-variants">
-                        <h4>Màu sắc:</h4>
-                        <button class="color-btn active">Mặc định</button>
-                    </div>
-
-                    <div style="padding: 15px; border: 1px dashed #2ecc71; border-radius: 4px; background: #f0fdf4;">
-                        <b>🎁 Khuyến mãi đặc biệt:</b>
-                        <ul style="margin: 10px 0 0 20px; color: #2c3e50; font-size: 0.9rem;">
-                            <li>Tặng Balo Laptop / Túi chống sốc</li>
-                            <li>Tặng chuột không dây cao cấp</li>
-                            <li>Giảm thêm 5% khi quét VNPAY</li>
-                        </ul>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="btn-add-cart" onclick="addCurrentToCart()">🛒 ThÊM VÀO GIỎ HÀNG</button>
-                        <button class="btn-buy-now" onclick="buyNow()">💳 MUA NGAY</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="product-bottom">
-            <div class="section-box">
-                <h3>Đặc điểm nổi bật</h3>
-                <div style="line-height: 1.6; color: #444;">
-                    <p>Sản phẩm mang đến hiệu năng vượt trội, đáp ứng tốt mọi nhu cầu từ làm việc văn phòng, đồ họa 2D/3D cho đến chiến các tựa game eSport đình đám nhất hiện nay.</p>
-                    <p>Thiết kế hiện đại, mỏng nhẹ, dễ dàng mang theo mọi lúc mọi nơi. Màn hình sắc nét cùng tần số quét cao giúp trải nghiệm hình ảnh trở nên mượt mà hơn bao giờ hết.</p>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h3>Thông số kỹ thuật</h3>
-                <table class="spec-table">
-                    <tr><td>Vi xử lý (CPU)</td><td>Core i7 / Ryzen 7</td></tr>
-                    <tr><td>RAM</td><td>16GB DDR5</td></tr>
-                    <tr><td>Ổ cứng</td><td>512GB SSD NVMe</td></tr>
-                    <tr><td>Card đồ họa (VGA)</td><td>RTX 3060 / 4050</td></tr>
-                    <tr><td>Màn hình</td><td>15.6" FHD 144Hz</td></tr>
-                    <tr><td>Trọng lượng</td><td>2.1 kg</td></tr>
-                </table>
-            </div>
+        <div class="detail-page" id="product-detail-container">
+            <div style="text-align: center; grid-column: span 2;">Đang tải thông tin sản phẩm...</div>
         </div>
     </main>
 
+    <script src="../assets/js/main.js"></script>
     <script src="../assets/js/detail.js"></script>
 </body>
 </html>
