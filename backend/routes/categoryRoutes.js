@@ -4,7 +4,7 @@ const db = require("../config/db"); // Đảm bảo đường dẫn trỏ đúng
 
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name FROM categories');
+        const [rows] = await db.query('SELECT id, name FROM category');
         res.json(rows);
     } catch (error) {
         console.error("Lỗi lấy danh mục:", error);

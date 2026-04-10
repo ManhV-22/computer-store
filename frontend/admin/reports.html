@@ -1,1 +1,60 @@
 <!-- reports.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo thống kê - ComputerStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <div class="admin-main-wrapper">
+        <div class="main-content">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <div>
+                    <h2 style="margin: 0; color: #2c3e50;">📈 Báo cáo thống kê</h2>
+                    <p style="color: #7f8c8d; margin-top: 5px;">Phân tích doanh thu và hiệu suất bán hàng</p>
+                </div>
+                
+                <select style="padding: 8px 15px; border-radius: 6px; border: 1px solid #ddd; outline: none;">
+                    <option>Hôm nay</option>
+                    <option>Tuần này</option>
+                    <option>Tháng này</option>
+                    <option>Năm nay</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <i class="fas fa-coins" style="font-size: 30px; color: #f1c40f; margin-bottom: 10px;"></i>
+                    <h4 style="margin: 0; color: #7f8c8d;">Tổng doanh thu</h4>
+                    <h2 style="margin: 10px 0 0 0; color: #e74c3c;">125.500.000đ</h2>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <i class="fas fa-shopping-bag" style="font-size: 30px; color: #3498db; margin-bottom: 10px;"></i>
+                    <h4 style="margin: 0; color: #7f8c8d;">Đơn hàng hoàn tất</h4>
+                    <h2 style="margin: 10px 0 0 0; color: #2c3e50;">342</h2>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <i class="fas fa-user-plus" style="font-size: 30px; color: #9b59b6; margin-bottom: 10px;"></i>
+                    <h4 style="margin: 0; color: #7f8c8d;">Khách hàng mới</h4>
+                    <h2 style="margin: 10px 0 0 0; color: #2c3e50;">89</h2>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; border: 2px dashed #eee;">
+                <i class="fas fa-chart-bar" style="font-size: 50px; color: #ecf0f1; margin-bottom: 15px;"></i>
+                <h3 style="color: #bdc3c7; margin: 0;">Khu vực hiển thị biểu đồ doanh thu</h3>
+                <p style="color: #95a5a6; font-size: 14px;">(Sử dụng thư viện Chart.js để nhúng biểu đồ vào đây)</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

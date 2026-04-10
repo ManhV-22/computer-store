@@ -60,6 +60,8 @@ function updateAuthUI() {
     // Kiểm tra xem chúng ta đang ở trang chủ hay trong thư mục /pages/
     const isInsidePages = window.location.pathname.includes('/pages/');
     const pathPrefix = isInsidePages ? '' : 'pages/';
+    // Tiền tố để vào được thư mục admin (từ ngoài hay từ trong pages)
+    const adminPrefix = isInsidePages ? '../admin/' : 'admin/';
 
     if (user && userNameElement) {
         // --- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP ---
@@ -67,11 +69,26 @@ function updateAuthUI() {
         userNameElement.parentElement.onclick = null; 
         
         if (userDropdown) {
-            // Thêm nút Đơn hàng và nút Đăng xuất
-            userDropdown.innerHTML = `
+            // Khởi tạo nội dung menu
+            let menuHTML = '';
+
+            // KIỂM TRA QUYỀN (Nếu role là 1 = Admin, hoặc text là 'admin', tuỳ bạn cài đặt ở backend)
+            // Bạn có thể sửa "user.role === 1" thành điều kiện phù hợp với API của bạn nhé
+            if (user.role === 1 || user.role === 'admin') {
+                menuHTML += `
+                    <a href="${adminPrefix}dashboard.html" style="display: block; padding: 12px 15px; color: #e74c3c; font-weight: bold; text-decoration: none; border-bottom: 1px solid #eee;">
+                        ⚙️ Trang Quản Trị
+                    </a>
+                `;
+            }
+
+            // Gắn thêm các nút cơ bản (Đơn hàng, Đăng xuất)
+            menuHTML += `
                 <a href="${pathPrefix}orders.html" style="display: block; padding: 12px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">📦 Đơn hàng của tôi</a>
                 <a href="#" onclick="logout(); return false;" style="display: block; padding: 12px 15px; color: #d70018; text-decoration: none; font-weight: bold; text-align: center;">🚪 Đăng xuất</a>
             `;
+
+            userDropdown.innerHTML = menuHTML;
         }
     } else if (userNameElement) {
         // --- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP ---

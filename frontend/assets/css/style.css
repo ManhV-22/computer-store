@@ -376,3 +376,179 @@ input, select, textarea {
 /* Status Badges */
 .status-active { color: #27ae60; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
 .status-inactive { color: #e74c3c; background: #ffebee; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+
+/* --- CSS hiển thị ảnh trong Bảng --- */
+/* Thư viện icons FontAwesome cần được load ở HTML */
+
+.img-viewer-trigger {
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+}
+
+.admin-img-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+/* Hiệu ứng nhóm ảnh chồng lên nhau khi có từ 2 ảnh trở lên */
+.img-group {
+    display: flex;
+    position: relative;
+}
+
+.img-group img:not(:first-child) {
+    position: absolute;
+    top: 4px;
+    left: 8px; /* Đẩy ảnh sau lệch sang phải */
+    z-index: 1;
+}
+
+.img-group img:first-child {
+    z-index: 2;
+}
+
+/* Lớp phủ hiển thị +X (VD: +3) */
+.img-more-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px; /* Bằng kích thước ảnh thumb */
+    height: 50px;
+    background: rgba(0,0,0,0.6); /* Lớp phủ đen trong suốt */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 3; /* Nằm trên cùng */
+    pointer-events: none; /* Cho phép click xuyên qua lớp phủ */
+}
+
+/* --- CSS cho Lightbox xem ảnh --- */
+.lightbox {
+    background: rgba(0,0,0,0.9); /* Nền đen đậm hơn */
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-content {
+    background: #1a1a1a; /* Nền Modal đen xám */
+    max-width: 90%;
+    width: auto;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #333;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto; /* Cho phép cuộn nếu nhiều ảnh */
+}
+
+.lightbox-close {
+    color: #fff;
+    opacity: 0.8;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 30px;
+    cursor: pointer;
+}
+.lightbox-close:hover { opacity: 1; }
+
+.viewer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.viewer-img-item {
+    max-width: 180px;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+.viewer-img-item:hover {
+    transform: scale(1.05);
+    border-color: #3498db;
+}
+
+/* --- BỐ CỤC ADMIN CHUẨN (SIDEBAR + MAIN CONTENT) --- */
+body:has(.admin-main-wrapper) {
+    margin: 0;
+    padding: 0;
+    display: flex; /* Chia màn hình làm 2 cột */
+    height: 100vh; /* Cao bằng 100% màn hình */
+    background-color: #f4f6f9; /* Màu nền xám nhạt cho admin */
+    overflow: hidden; /* Ẩn thanh cuộn của toàn trang */
+}
+
+/* Thanh điều hướng bên trái */
+.admin-sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    height: 100vh;
+    flex-shrink: 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.admin-sidebar h3 {
+    text-align: center;
+    padding: 20px 0;
+    margin: 0;
+    border-bottom: 1px solid #34495e;
+}
+
+.admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-sidebar a {
+    display: block;
+    padding: 15px 20px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: 0.3s;
+    border-bottom: 1px solid #34495e;
+}
+
+.admin-sidebar a:hover {
+    background-color: #34495e;
+    padding-left: 25px; /* Hiệu ứng trượt nhẹ khi hover */
+}
+
+.admin-sidebar a.active {
+    background-color: #27ae60; /* Sáng màu thẻ đang chọn */
+    border-left: 4px solid #2ecc71;
+}
+
+.admin-sidebar i {
+    width: 25px;
+}
+
+/* Phần nội dung bên phải */
+.admin-main-wrapper {
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    height: 100vh;
+    overflow-y: auto; /* Chỉ cho phép cuộn nội dung phần này */
+    position: relative;
+}
+
+/* Căn lề cho phần ruột bên trong */
+.main-content {
+    padding: 25px;
+}

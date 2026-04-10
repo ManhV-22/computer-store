@@ -1,65 +1,39 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - ComputerStore</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* CSS nhanh cho Layout Admin */
-        body { display: flex; min-height: 100vh; margin: 0; font-family: Arial, sans-serif; background: #f4f7f6; }
-        
-        /* Sidebar */
-        .sidebar { width: 260px; background: #2c3e50; color: white; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; text-align: center; background: #1a252f; font-size: 1.2rem; font-weight: bold; color: #e74c3c; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
-        .sidebar-menu li a { display: block; padding: 15px 20px; color: #bdc3c7; text-decoration: none; transition: 0.3s; border-left: 4px solid transparent; }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: #34495e; color: white; border-left: 4px solid #e74c3c; }
-        .sidebar-menu li a i { margin-right: 10px; width: 20px; }
-        
-        /* Main Content */
-        .main-content { flex: 1; display: flex; flex-direction: column; }
-        .top-bar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .content-body { padding: 30px; }
-        
-        /* Class để ẩn menu */
-        .admin-only { border-left-color: #3498db !important; } 
-    </style>
-</head>
+    <link rel="stylesheet" href="../assets/css/style.css"> </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-laptop-code"></i> COMPUTER ADMIN
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Quản lý đơn hàng</a></li>
-            
-            <li class="admin-only"><a href="categories.html"><i class="fas fa-list"></i> Quản lý danh mục</a></li>
-            <li class="admin-only"><a href="products.html"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
-            <li class="admin-only"><a href="users.html"><i class="fas fa-users"></i> Quản lý người dùng</a></li>
-            <li class="admin-only"><a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo thống kê</a></li>
-            
-            <li style="margin-top: auto;"><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
-        </ul>
-    </aside>
+    <div id="sidebar-container"></div>
 
-    <div class="main-content">
-        <header class="top-bar">
-            <div class="user-info">
-                Chào mừng, <strong id="admin-name">Admin</strong> (<span id="admin-role">Role</span>)
+    <div class="admin-main-wrapper">
+        
+        <header class="top-bar" style="background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="user-info" style="font-size: 16px; color: #2c3e50;">
+                Chào mừng, <strong id="admin-name">Admin</strong> 
+                (<span id="admin-role" style="color: #e74c3c; font-weight: bold;">Role</span>)
             </div>
-            <a href="../index.html" class="btn-back">Xem cửa hàng <i class="fas fa-external-link-alt"></i></a>
+            <a href="../pages/index.html" class="btn-back" style="text-decoration: none; color: #3498db; font-weight: bold; transition: 0.2s;">
+                Xem cửa hàng <i class="fas fa-external-link-alt"></i>
+            </a>
         </header>
 
-        <main class="content-body">
+        <div class="main-content">
+            <div class="page-header" style="margin-bottom: 20px;">
+                <h2 style="margin: 0;">📊 Bảng điều khiển</h2>
+            </div>
+            
             <div id="dashboard-overview">
-                <h2>Tổng quan hệ thống</h2>
+                <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; color: #7f8c8d;">
+                    <h3>Dữ liệu tổng quan hệ thống</h3>
+                    <p>Các biểu đồ và số liệu sẽ được hiển thị tại đây.</p>
                 </div>
-        </main>
+            </div>
+        </div>
     </div>
 
     <script src="../assets/js/admin.js"></script>

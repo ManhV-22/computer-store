@@ -7,24 +7,33 @@
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <div class="main-content">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <h2>📦 Quản lý sản phẩm</h2>
-            <button class="btn-add" onclick="openAddModal()">+ Thêm sản phẩm</button>
-        </div>
 
-        <table border="1" style="width:100%; border-collapse: collapse; background: white;">
-            <thead>
-                <tr style="background: #2c3e50; color: white;">
-                    <th>ID</th>
-                    <th>Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody id="admin-product-list"></tbody>
-        </table>
+    <div id="sidebar-container"></div>
+
+    <div class="admin-main-wrapper">
+        <div class="main-content">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📦 Quản lý sản phẩm</h2>
+                <button class="btn-add" onclick="openAddModal()" style="padding: 10px 15px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    + Thêm sản phẩm
+                </button>
+            </div>
+
+            <table border="1" style="width:100%; border-collapse: collapse; background: white;">
+                <thead>
+                    <tr style="background: #2c3e50; color: white;">
+                        <th style="padding: 12px;">ID</th>
+                        <th style="padding: 12px;">Ảnh</th>
+                        <th style="padding: 12px;">Tên sản phẩm</th>
+                        <th style="padding: 12px;">Giá</th>
+                        <th style="padding: 12px;">Số lượng</th>
+                        <th style="padding: 12px;">Trạng thái</th>
+                        <th style="padding: 12px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-product-list"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="productModal" class="modal">
@@ -47,22 +56,23 @@
                     <div class="form-group">
                         <label>Trạng thái</label>
                         <select id="p-status">
-                            <option value="active">Đang bán</option>
-                            <option value="inactive">Tạm ngưng</option>
+                            <option value="1">Đang bán</option>
+                            <option value="0">Tạm ngưng</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Danh mục</label>
                         <select id="p-category" required>
                             <option value="">-- Chọn danh mục --</option>
-                            </select>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Thương hiệu</label>
                         <select id="p-brand" required>
                             <option value="">-- Chọn thương hiệu --</option>
-                            </select>
-                </div>
+                        </select>
+                    </div>
+                </div> 
                 <div class="form-group full-width">
                     <label>Mô tả chi tiết</label>
                     <textarea id="p-description" rows="3"></textarea>
@@ -79,6 +89,17 @@
         </div>
     </div>
 
+    <div id="imageViewerModal" class="modal lightbox">
+        <div class="modal-content lightbox-content">
+            <span class="close lightbox-close" onclick="closeViewerModal()">&times;</span>
+            <h3 style="color: white; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                <i class="fas fa-images"></i> Hình ảnh sản phẩm
+            </h3>
+            <div id="imageViewerContainer" class="viewer-grid"></div>
+        </div>
+    </div>
+
     <script src="../assets/js/admin.js"></script>
+
 </body>
 </html>

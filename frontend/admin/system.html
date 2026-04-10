@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng quan hệ thống - ComputerStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <div class="admin-main-wrapper">
+        <div class="main-content">
+            <div class="page-header" style="margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #2c3e50;">🖥️ Tổng quan hệ thống</h2>
+                <p style="color: #7f8c8d; margin-top: 5px;">Kiểm tra tình trạng hoạt động của máy chủ và cơ sở dữ liệu</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #2ecc71;">
+                    <h4 style="margin: 0 0 10px 0; color: #7f8c8d;"><i class="fas fa-server"></i> Trạng thái Server</h4>
+                    <h2 style="margin: 0; color: #2ecc71;">Hoạt động tốt</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 13px; color: #bdc3c7;">Uptime: 99.9%</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #3498db;">
+                    <h4 style="margin: 0 0 10px 0; color: #7f8c8d;"><i class="fas fa-database"></i> Cơ sở dữ liệu</h4>
+                    <h2 style="margin: 0; color: #3498db;">Đã kết nối</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 13px; color: #bdc3c7;">Dung lượng: 125 MB / 1 GB</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #e67e22;">
+                    <h4 style="margin: 0 0 10px 0; color: #7f8c8d;"><i class="fas fa-microchip"></i> CPU & RAM</h4>
+                    <h2 style="margin: 0; color: #e67e22;">Bình thường</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 13px; color: #bdc3c7;">RAM Usage: 45%</p>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Nhật ký hệ thống gần đây</h3>
+                <ul style="list-style: none; padding: 0; margin: 0; color: #555; font-family: monospace;">
+                    <li style="padding: 10px 0; border-bottom: 1px dashed #eee;">[10:05 AM] - Hệ thống sao lưu dữ liệu tự động thành công.</li>
+                    <li style="padding: 10px 0; border-bottom: 1px dashed #eee;">[09:30 AM] - Admin đăng nhập từ địa chỉ IP: 192.168.1.55</li>
+                    <li style="padding: 10px 0;">[08:15 AM] - Dịch vụ gửi email xác nhận đơn hàng khởi động lại.</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>
