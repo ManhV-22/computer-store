@@ -1,31 +1,21 @@
-<!-- products.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý sản phẩm - Admin</title>
+    <title>Quản lý sản phẩm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Dùng lại CSS Sidebar từ dashboard.html */
-        body { display: flex; min-height: 100vh; margin: 0; font-family: Arial; background: #f4f7f6; }
-        .sidebar { width: 260px; background: #2c3e50; color: white; position: fixed; height: 100vh; }
-        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
-        .btn-add { background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
-    </style>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <aside class="sidebar">
-        </aside>
-
     <div class="main-content">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>💻 Quản lý sản phẩm</h2>
-            <button class="btn-add" onclick="showAddProductModal()"><i class="fas fa-plus"></i> Thêm sản phẩm mới</button>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h2>📦 Quản lý sản phẩm</h2>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm sản phẩm</button>
         </div>
-        
-        <table border="1" width="100%" style="border-collapse: collapse; background: white;">
+
+        <table border="1" style="width:100%; border-collapse: collapse; background: white;">
             <thead>
-                <tr style="background: #eee;">
+                <tr style="background: #2c3e50; color: white;">
                     <th>ID</th>
                     <th>Ảnh</th>
                     <th>Tên sản phẩm</th>
@@ -33,12 +23,62 @@
                     <th>Thao tác</th>
                 </tr>
             </thead>
-            <tbody id="admin-product-list">
-                </tbody>
+            <tbody id="admin-product-list"></tbody>
         </table>
     </div>
 
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">📦 Thêm sản phẩm mới</h3>
+            <form id="add-product-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="p-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá bán (đ)</label>
+                        <input type="number" id="p-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng kho</label>
+                        <input type="number" id="p-quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select id="p-status">
+                            <option value="active">Đang bán</option>
+                            <option value="inactive">Tạm ngưng</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục</label>
+                        <select id="p-category" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Thương hiệu</label>
+                        <select id="p-brand" required>
+                            <option value="">-- Chọn thương hiệu --</option>
+                            </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Mô tả chi tiết</label>
+                    <textarea id="p-description" rows="3"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>Hình ảnh (Chọn nhiều)</label>
+                    <input type="file" id="p-images" multiple accept="image/*">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
+                    <button type="submit" class="btn-save">Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../assets/js/admin.js"></script>
-    <script src="../assets/js/product.js"></script> 
 </body>
 </html>

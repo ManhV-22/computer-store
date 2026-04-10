@@ -1,113 +1,148 @@
-// assets/js/admin.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    // Bảo vệ trang
-    // assets/js/admin.js
-
-    if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
-        alert("Bạn không có quyền truy cập!");
-        // Đẩy về trang login đúng địa chỉ
-        window.location.href = '/frontend/pages/login.html'; 
-        return;
+    // Tự động load danh sách khi vào trang quản lý
+    if (document.getElementById('admin-product-list')) {
+        loadAdminProducts();
     }
 
-    // Ẩn menu Admin-only nếu là nhân viên
-    if (user.role === 'employee') {
-        document.querySelectorAll('.admin-only').forEach(el => el.remove());
-    }
+    // Xử lý sự kiện gửi form thêm sản phẩm
+    const addProductForm = document.getElementById('add-product-form');
+    if (addProductForm) {
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-    // Nếu đang ở trang orders thì load đơn hàng
-    if (document.getElementById('admin-orders-list')) {
-        fetchAllOrders();
-    }
-
-    // Thêm vào trong document.addEventListener('DOMContentLoaded', ...)
-    if (document.getElementById('dashboard-overview')) {
-        loadDashboardStats();
-    }
-
-    async function loadDashboardStats() {
-        try {
-            const res = await fetch('http://localhost:3000/api/admin/orders');
-            const orders = await res.json();
+            const formData = new FormData();
+            // Lấy đầy đủ các trường khớp với DB
+            formData.append('name', document.getElementById('p-name').value);
+            formData.append('price', document.getElementById('p-price').value);
+            formData.append('quantity', document.getElementById('p-quantity').value);
+            formData.append('description', document.getElementById('p-description').value);
+            formData.append('brand_id', document.getElementById('p-brand').value);
+            formData.append('category_id', document.getElementById('p-category').value);
+            formData.append('status', document.getElementById('p-status').value);
             
-            const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            // Xử lý nhiều file ảnh
+            const imageInput = document.getElementById('p-images');
+            if (imageInput.files.length > 0) {
+                for (let i = 0; i < imageInput.files.length; i++) {
+                    formData.append('images', imageInput.files[i]);
+                }
+            }
 
-            document.getElementById('dashboard-overview').innerHTML = `
-                <h2>Tổng quan hệ thống</h2>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
-                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #e74c3c;">
-                        <p style="color: #7f8c8d; margin: 0;">Tổng đơn hàng</p>
-                        <h3 style="margin: 10px 0; font-size: 24px;">${orders.length}</h3>
-                    </div>
-                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #f1c40f;">
-                        <p style="color: #7f8c8d; margin: 0;">Đơn chờ xử lý</p>
-                        <h3 style="margin: 10px 0; font-size: 24px;">${pendingOrders}</h3>
-                    </div>
-                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #2ecc71;">
-                        <p style="color: #7f8c8d; margin: 0;">Doanh thu dự kiến</p>
-                        <h3 style="margin: 10px 0; font-size: 24px;">${totalRevenue.toLocaleString()}đ</h3>
-                    </div>
-                </div>
-            `;
-        } catch (err) {
-            console.error("Lỗi tải thống kê:", err);
-        }
+            try {
+                const res = await fetch('http://localhost:3000/api/products', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    alert("Thêm sản phẩm thành công!");
+                    closeModal();
+                    loadAdminProducts(); 
+                } else {
+                    alert("Lỗi: " + result.message);
+                }
+            } catch (err) {
+                console.error("Lỗi kết nối:", err);
+                alert("Không thể kết nối đến server!");
+            }
+        });
     }
 });
 
-async function fetchAllOrders() {
+// Hàm lấy và hiển thị danh sách sản phẩm
+async function loadAdminProducts() {
+    const list = document.getElementById('admin-product-list');
+    if (!list) return;
+
     try {
-        const res = await fetch('http://localhost:3000/api/admin/orders');
-        const orders = await res.json();
-        const list = document.getElementById('admin-orders-list');
+        const res = await fetch('http://localhost:3000/api/products');
+        const products = await res.json();
+        
+        list.innerHTML = products.map(item => {
+            const allImages = item.image ? item.image.split(',') : [];
+            const displayImage = allImages.length > 0 ? `../assets/img/${allImages[0]}` : '../assets/img/default.jpg';
 
-        list.innerHTML = orders.map(order => `
-            <tr>
-                <td><b>#ORD${order.id}</b></td>
-                <td>${new Date(order.created_at).toLocaleString('vi-VN')}</td>
-                <td>User ID: ${order.user_id}</td>
-                <td style="color: #d70018; font-weight: bold;">${parseFloat(order.total_price).toLocaleString()}đ</td>
-                <td>
-                    <select class="status-select" onchange="updateOrderStatus(${order.id}, this.value)">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
-                        <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>Đang giao</option>
-                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
-                    </select>
-                </td>
-                <td>
-                    <button class="btn-detail" onclick="viewDetail(${order.id})">Xem</button>
-                </td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error("Lỗi tải đơn hàng:", err);
+            return `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>
+                        <img src="${displayImage}" width="60" height="60" style="object-fit:cover; border-radius:6px;" onerror="this.src='../assets/img/default.jpg'">
+                    </td>
+                    <td>
+                        <strong>${item.name}</strong><br>
+                        <small>Thương hiệu: ${item.brand_name || 'N/A'} | Danh mục: ${item.category_name || 'N/A'}</small>
+                    </td>
+                    <td style="color:#c0392b; font-weight:bold;">${Number(item.price).toLocaleString()}đ</td>
+                    <td>${item.quantity}</td> <td>
+                        <span class="status-${item.status}">${item.status === 'active' ? 'Đang bán' : 'Tạm khóa'}</span>
+                    </td>
+                    <td>
+                        <button onclick="editProduct(${item.id})" class="btn-edit">Sửa</button>
+                        <button onclick="deleteProduct(${item.id})" class="btn-delete">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) { 
+        console.error("Lỗi tải danh sách sản phẩm:", err); 
     }
 }
 
-async function updateOrderStatus(orderId, newStatus) {
-    const res = await fetch(`http://localhost:3000/api/admin/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-    });
-
-    if (res.ok) {
-        alert("Cập nhật trạng thái thành công!");
+// Hàm xóa sản phẩm
+async function deleteProduct(id) {
+    if (confirm("Xác nhận xóa sản phẩm này? Thao tác này không thể hoàn tác.")) {
+        try {
+            const res = await fetch(`http://localhost:3000/api/products/${id}`, { 
+                method: 'DELETE' 
+            });
+            
+            if (res.ok) {
+                loadAdminProducts();
+            } else {
+                alert("Không thể xóa sản phẩm này!");
+            }
+        } catch (err) {
+            console.error("Lỗi:", err);
+        }
     }
 }
 
-async function viewDetail(orderId) {
-    // Bạn có thể dùng lại logic Modal hoặc đơn giản là alert/console log trước
-    // Để chuyên nghiệp, hãy tạo một Modal tương tự bên trang người dùng
-    alert("Xem chi tiết đơn hàng: " + orderId);
-    
-    // Logic gợi ý: Fetch API detail và hiện Popup
-    // const res = await fetch(`http://localhost:3000/api/orders/detail/${orderId}`);
-    // const data = await res.json();
-    // ... hiển thị lên màn hình ...
+
+
+// Điều khiển Modal
+function openAddModal() { 
+    document.getElementById('productModal').style.display = 'flex'; 
 }
+
+function closeModal() { 
+    document.getElementById('productModal').style.display = 'none'; 
+    document.getElementById('add-product-form').reset();
+}
+
+function editProduct(id) { 
+    alert("Chức năng cập nhật cho ID " + id + " đang được xử lý."); 
+}
+
+async function loadCategoriesAndBrands() {
+    try {
+        const [resCat, resBrand] = await Promise.all([
+            fetch('http://localhost:3000/api/categories'),
+            fetch('http://localhost:3000/api/brands')
+        ]);
+        
+        const cats = await resCat.json();
+        const brands = await resBrand.json();
+
+        document.getElementById('p-category').innerHTML += cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        document.getElementById('p-brand').innerHTML += brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    } catch (err) { console.error("Không load được danh sách chọn"); }
+}
+
+// Gọi hàm này trong DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadCategoriesAndBrands();
+    // ... các code cũ
+});
+
