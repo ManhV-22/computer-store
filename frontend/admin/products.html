@@ -39,7 +39,7 @@
     <div id="productModal" class="modal">
         <div class="modal-content">
             <h3 style="margin-top: 0;">📦 Thêm sản phẩm mới</h3>
-            <form id="add-product-form">
+            <form id="product-form">
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Tên sản phẩm</label>
@@ -81,9 +81,13 @@
                     <label>Hình ảnh (Chọn nhiều)</label>
                     <input type="file" id="p-images" multiple accept="image/*">
                 </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; grid-column: span 2;">
+                    <input type="checkbox" id="p-featured" style="width: auto;">
+                    <label for="p-featured" style="margin-bottom: 0;">🌟 Đánh dấu là sản phẩm nổi bật (Hiện trang chủ)</label>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
-                    <button type="submit" class="btn-save">Lưu sản phẩm</button>
+                    <button type="button" class="btn-save" onclick="saveProduct()">Lưu sản phẩm</button>
                 </div>
             </form>
         </div>
@@ -98,8 +102,9 @@
             <div id="imageViewerContainer" class="viewer-grid"></div>
         </div>
     </div>
-
+    <script src="../assets/js/main.js"></script>
     <script src="../assets/js/admin.js"></script>
+    
 
 </body>
 </html>

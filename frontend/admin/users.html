@@ -1,21 +1,109 @@
-<!-- users.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Người Dùng</title>
+    <title>Quản lý Người dùng - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* Tận dụng lại Style của trang Categories */
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; }
+        .table-custom th, .table-custom td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .table-custom th { background-color: #f8f9fa; }
+        
+        /* Badge trạng thái cho chuyên nghiệp */
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .role-admin { background: #e74c3c; color: white; }
+        .role-staff { background: #3498db; color: white; }
+        .role-customer { background: #bdc3c7; color: #333; }
+        .status-active { background: #2ecc71; color: white; }
+        .status-locked { background: #95a5a6; color: white; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 450px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
     <div id="sidebar-container"></div>
 
     <div class="admin-main-wrapper">
         <div class="main-content">
-            <h2>📂Quản lý Người Dùng</h2>
+            <div class="flex-between">
+                <h2>👤 Quản lý Người dùng</h2>
+                <div class="search-admin">
+                    <input type="text" placeholder="Tìm theo tên hoặc email..." id="user-search" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; width: 250px;">
+                </div>
             </div>
+
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Người dùng</th>
+                        <th>Email</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align: right;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <strong>Vương Tuệ Lâm</strong><br>
+                            <small style="color: #7f8c8d;">@tuelam_admin</small>
+                        </td>
+                        <td>lamvt@computerstore.vn</td>
+                        <td><span class="badge role-admin">Admin</span></td>
+                        <td><span class="badge status-active">Hoạt động</span></td>
+                        <td style="text-align: right;">
+                            <button onclick="editUser(1)" style="border:none; background:none; color:#3498db; cursor:pointer;"><i class="fas fa-edit"></i></button>
+                            <button onclick="lockUser(1)" style="border:none; background:none; color:#e74c3c; cursor:pointer; margin-left: 10px;"><i class="fas fa-lock"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h3>Cập nhật người dùng</h3>
+            <div class="form-group">
+                <label>Họ tên</label>
+                <input type="text" id="edit-fullname" readonly style="background: #f9f9f9;">
+            </div>
+            <div class="form-group">
+                <label>Vai trò</label>
+                <select id="edit-role">
+                    <option value="admin">Quản trị viên (Admin)</option>
+                    <option value="staff">Nhân viên (Staff)</option>
+                    <option value="customer">Khách hàng (Customer)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Trạng thái tài khoản</label>
+                <select id="edit-status">
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Khóa tài khoản</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button onclick="closeUserModal()" style="padding: 10px 20px; border: none; cursor: pointer;">Hủy</button>
+                <button onclick="saveUserChanges()" style="padding: 10px 20px; border: none; background: #2ecc71; color: white; border-radius: 5px; cursor: pointer;">Lưu thay đổi</button>
+            </div>
+        </div>
     </div>
 
     <script src="../assets/js/admin.js"></script>
+    <script>
+        const userModal = document.getElementById('userModal');
+        function editUser(id) { userModal.style.display = 'flex'; }
+        function closeUserModal() { userModal.style.display = 'none'; }
+    </script>
 </body>
 </html>

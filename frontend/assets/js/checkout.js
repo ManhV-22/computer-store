@@ -35,8 +35,11 @@ function renderCheckoutSummary() {
     
     // Nếu giỏ hàng trống, không cho ở lại trang thanh toán
     if (cart.length === 0) {
-        alert("Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm trước.");
-        window.location.href = "../index.html"; 
+        window.showNotification("🛒 Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm.", "error");
+        // Đợi 1.5s để người dùng đọc thông báo rồi mới đẩy về trang chủ
+        setTimeout(() => {
+            window.location.href = "http://127.0.0.1:5501/frontend/pages/index.html"; 
+        }, 1500);
         return;
     }
 
@@ -88,7 +91,7 @@ async function processCheckout() {
 
     // Kiểm tra validate cơ bản
     if (!fullname || !phone || !address) {
-        alert("Vui lòng điền đầy đủ Họ tên, Số điện thoại và Địa chỉ giao hàng!");
+        window.showNotification("⚠️ Vui lòng điền đầy đủ Họ tên, Số điện thoại và Địa chỉ!", "error");
         return;
     }
 
@@ -134,25 +137,28 @@ async function processCheckout() {
         const result = await response.json();
 
         if (response.ok) {
-            // Xóa giỏ hàng và thông báo thành công
-            alert(`🎉 Đặt hàng thành công!\nMã đơn hàng của bạn là: #${result.orderId}\nChúng tôi sẽ sớm liên hệ qua số điện thoại ${phone}.`);
+            // Thông báo nổi thành công
+            window.showNotification(`🎉 Đặt hàng thành công! Mã đơn: #${result.orderId}`, "success");
             
             localStorage.removeItem('cart');
 
-            // Nếu có hàm cập nhật số lượng trên header ở main.js thì gọi
-            if (typeof updateCartCount === 'function') {
-                updateCartCount();
+            // Cập nhật lại số lượng giỏ hàng trên Header (gọi hàm từ main.js)
+            if (typeof window.updateCartCount === 'function') {
+                window.updateCartCount();
             }
 
-            // Chuyển hướng về trang chủ (sử dụng ../ vì đang ở trong thư mục pages/)
-            window.location.href = "index.html"; 
+            // Đợi 2 giây để khách đọc thông báo xong rồi mới đá về trang chủ
+            setTimeout(() => {
+                window.location.href = "http://127.0.0.1:5501/frontend/pages/index.html"; 
+            }, 2000);
+
         } else {
             throw new Error(result.message || "Lỗi từ phía máy chủ khi lưu đơn hàng.");
         }
 
     } catch (error) {
         console.error("Lỗi quá trình thanh toán:", error);
-        alert("Có lỗi xảy ra: " + error.message);
+        window.showNotification("❌ Có lỗi xảy ra: " + error.message, "error");
         
         // Kích hoạt lại nút nếu lỗi để khách hàng thử lại
         if (btnSubmit) {

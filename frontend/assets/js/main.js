@@ -1,21 +1,69 @@
 // assets/js/main.js
-const API_URL = 'http://localhost:3000/api'; 
+window.API_URL = 'http://localhost:3000/api';
+
+// ==========================================
+// HÀM HIỂN THỊ THÔNG BÁO GIỮA MÀN HÌNH (THAY THẾ ALERT)
+// ==========================================
+window.showNotification = function(message, type = 'success') {
+    // Xóa thông báo cũ nếu đang hiện
+    const existingToast = document.getElementById('custom-toast-notification');
+    if (existingToast) existingToast.remove();
+
+    // Tạo thẻ div chứa thông báo
+    const toast = document.createElement('div');
+    toast.id = 'custom-toast-notification';
+    
+    // Đặt màu sắc tùy theo loại thông báo
+    const bgColor = type === 'success' ? '#2ecc71' : '#e74c3c'; // Xanh lá cho thành công, Đỏ cho lỗi
+
+    // CSS cho thông báo hiện giữa màn hình
+    toast.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: ${bgColor};
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 99999;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        pointer-events: none;
+    `;
+
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+
+    // Hiệu ứng Fade-in
+    setTimeout(() => {
+        toast.style.opacity = '1';
+    }, 10);
+
+    // Tự động Fade-out và xóa đi sau 2 giây
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                toast.remove();
+            }
+        }, 300); // Đợi CSS transition chạy xong mới remove
+    }, 2000);
+};
 
 // ==========================================
 // TẢI COMPONENT (HEADER / FOOTER CHUNG)
 // ==========================================
 async function loadComponents() {
-    // 1. Kiểm tra xem trang hiện tại có nằm trong folder 'pages' hay không
-    // window.location.pathname sẽ trả về đường dẫn file trên trình duyệt
     const isInsidePages = window.location.pathname.includes('/pages/');
-
-    // 2. Thiết lập tiền tố đường dẫn: 
-    // Nếu ở trong 'pages', cần '../' để ra ngoài rồi mới vào 'components'
-    // Nếu ở ngoài (index.html), chỉ cần './'
     const prefix = isInsidePages ? '../components/' : './components/';
 
     try {
-        // Tải Header
         const headerPlaceholder = document.getElementById('header-placeholder');
         if (headerPlaceholder) {
             const res = await fetch(`${prefix}header.html`);
@@ -26,7 +74,6 @@ async function loadComponents() {
             }
         }
 
-        // Tải Footer
         const footerPlaceholder = document.getElementById('footer-placeholder');
         if (footerPlaceholder) {
             const res = await fetch(`${prefix}footer.html`);
@@ -35,7 +82,6 @@ async function loadComponents() {
             }
         }
 
-        // Sau khi nhúng xong HTML, mới bắt đầu chạy logic User và Giỏ hàng
         updateAuthUI();
         updateCartCount();
 
@@ -44,7 +90,6 @@ async function loadComponents() {
     }
 }
 
-// Chạy tải component ngay khi trang vừa load xong
 document.addEventListener('DOMContentLoaded', () => {
     loadComponents();
 });
@@ -57,23 +102,17 @@ function updateAuthUI() {
     const userDropdown = document.getElementById('user-dropdown');
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // Kiểm tra xem chúng ta đang ở trang chủ hay trong thư mục /pages/
     const isInsidePages = window.location.pathname.includes('/pages/');
     const pathPrefix = isInsidePages ? '' : 'pages/';
-    // Tiền tố để vào được thư mục admin (từ ngoài hay từ trong pages)
     const adminPrefix = isInsidePages ? '../admin/' : 'admin/';
 
     if (user && userNameElement) {
-        // --- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP ---
         userNameElement.innerText = user.name;
         userNameElement.parentElement.onclick = null; 
         
         if (userDropdown) {
-            // Khởi tạo nội dung menu
             let menuHTML = '';
 
-            // KIỂM TRA QUYỀN (Nếu role là 1 = Admin, hoặc text là 'admin', tuỳ bạn cài đặt ở backend)
-            // Bạn có thể sửa "user.role === 1" thành điều kiện phù hợp với API của bạn nhé
             if (user.role === 1 || user.role === 'admin') {
                 menuHTML += `
                     <a href="${adminPrefix}dashboard.html" style="display: block; padding: 12px 15px; color: #e74c3c; font-weight: bold; text-decoration: none; border-bottom: 1px solid #eee;">
@@ -82,7 +121,6 @@ function updateAuthUI() {
                 `;
             }
 
-            // Gắn thêm các nút cơ bản (Đơn hàng, Đăng xuất)
             menuHTML += `
                 <a href="${pathPrefix}orders.html" style="display: block; padding: 12px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">📦 Đơn hàng của tôi</a>
                 <a href="#" onclick="logout(); return false;" style="display: block; padding: 12px 15px; color: #d70018; text-decoration: none; font-weight: bold; text-align: center;">🚪 Đăng xuất</a>
@@ -91,7 +129,6 @@ function updateAuthUI() {
             userDropdown.innerHTML = menuHTML;
         }
     } else if (userNameElement) {
-        // --- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP ---
         userNameElement.innerText = "Đăng nhập";
         
         userNameElement.parentElement.onclick = () => {
@@ -107,69 +144,92 @@ function updateAuthUI() {
     }
 }
 
-function logout() {
+window.logout = function() {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('cart');
-    window.location.href = 'login.html';
+    
+    const isInsidePages = window.location.pathname.includes('/pages/');
+    window.location.href = isInsidePages ? 'login.html' : 'pages/login.html';
 }
 
 // ==========================================
 // CHỨC NĂNG GIỎ HÀNG (DÙNG CHUNG TOÀN HỆ THỐNG)
 // ==========================================
-async function addToCart(productId) {
-    // 1. KIỂM TRA ĐĂNG NHẬP (Dùng đúng key 'user' như lúc login)
+window.addToCart = async function(productId, isBuyNow = false) {
+    const isInsidePages = window.location.pathname.includes('/pages/');
+    const loginPath = isInsidePages ? 'login.html' : 'pages/login.html';
+
     const user = localStorage.getItem('user');
     if (!user) {
-        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng! 🔒");
-        window.location.href = 'login.html';
-        return; 
+        showNotification("🔒 Vui lòng đăng nhập để thao tác!", "error");
+        setTimeout(() => {
+            window.location.href = loginPath;
+        }, 1500);
+        return false; 
     }
 
     try {
-        // 2. LẤY THÔNG TIN SẢN PHẨM TỪ API
-        // Cách này đảm bảo an toàn, trang nào gọi hàm cũng lấy được đúng data
-        const response = await fetch(`${API_URL}/products`);
+        const response = await fetch(`${window.API_URL}/products`);
         const result = await response.json();
         
-        if (response.ok && result.success) {
-            const product = result.data.find(p => p.id == productId);
+        if (response.ok) {
+            // Lấy danh sách sản phẩm giống hệt cách home.js làm
+            const productsList = result.data || result; 
+            
+            // Tìm sản phẩm trong mảng
+            const product = Array.isArray(productsList) ? productsList.find(p => p.id == productId) : null;
             
             if (!product) {
-                alert("Không tìm thấy sản phẩm!");
-                return;
+                showNotification("❌ Không tìm thấy sản phẩm trong hệ thống!", "error");
+                return false;
             }
 
-            // 3. XỬ LÝ LƯU VÀO LOCALSTORAGE
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             const existingItem = cart.find(item => item.id == productId);
 
             if (existingItem) {
-                // Tăng số lượng nếu đã có
                 existingItem.quantity += 1; 
             } else {
-                // Thêm mới (Đổi thuộc tính thành quantity cho khớp với cart.js)
                 cart.push({ ...product, quantity: 1 });
             }
 
             localStorage.setItem('cart', JSON.stringify(cart));
+            window.updateCartCount();
             
-            // 4. CẬP NHẬT GIAO DIỆN
-            updateCartCount();
-            alert(`Đã thêm "${product.name}" vào giỏ hàng thành công! 🛒`);
+            if (!isBuyNow) {
+                showNotification(`🛒 Đã thêm <b>${product.name}</b> vào giỏ hàng!`, "success");
+            }
+            return true;
+        } else {
+            showNotification("❌ Lỗi API: Máy chủ phản hồi thất bại!", "error");
+            return false;
         }
     } catch (error) {
         console.error("Lỗi thêm giỏ hàng:", error);
+        showNotification("❌ Không kết nối được với Server!", "error");
+        return false;
     }
 }
 
-function updateCartCount() {
+// HÀM MUA NGAY 
+window.buyNow = async function(productId) {
+    const success = await window.addToCart(productId, true);
+    
+    if (success) {
+        const isInsidePages = window.location.pathname.includes('/pages/');
+        window.location.href = isInsidePages ? 'cart.html' : 'pages/cart.html';
+    }
+}
+
+window.updateCartCount = function() {
     const cartCountElement = document.getElementById('cart-count');
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
     
     if (cartCountElement) {
-        // Render số lượng vào Header mới
         cartCountElement.innerText = totalItems;
+        // Ẩn số đi nếu giỏ hàng trống cho giao diện sạch sẽ
+        cartCountElement.style.display = totalItems > 0 ? 'inline-block' : 'none';
     }
 }

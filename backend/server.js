@@ -1,27 +1,25 @@
-// server.js 
 const express = require("express");
 const cors = require("cors");
-
+const path = require("path");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Import các file routes
-const productRoutes = require("./routes/productRoutes");
-const userRoutes = require("./routes/userRoutes"); 
-const orderRoutes = require("./routes/orderRoutes"); // THÊM DÒNG NÀY
-const adminRoutes = require('./routes/adminRoutes');
-const brandRoutes = require('./routes/brandRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
+// PHỤC VỤ FILE TĨNH: Giúp xem được ảnh từ frontend/assets
+const assetsPath = path.join(__dirname, '../frontend/assets');
+app.use('/assets', express.static(assetsPath));
+console.log("Server đang đọc ảnh tại:", assetsPath);
 
-// Khai báo đường dẫn API
-app.use("/api/products", productRoutes);
-app.use("/api/users", userRoutes); 
-app.use("/api/orders", orderRoutes); // THÊM DÒNG NÀY
-app.use('/api/admin', adminRoutes);
-app.use('/api/brands', brandRoutes);       // URL gọi: http://localhost:3000/api/brands
-app.use('/api/categories', categoryRoutes);
+// Khai báo Routes
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/users", require("./routes/userRoutes")); 
+app.use("/api/orders", require("./routes/orderRoutes"));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/brands', require('./routes/brandRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/system', require('./routes/systemRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
 
 app.listen(3000, () => {
   console.log("🚀 Server running at http://localhost:3000");

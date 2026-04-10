@@ -72,4 +72,13 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, name, email, role, status FROM users');
+        res.json({ success: true, data: rows }); // Trả về cấu trúc { success, data }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        res.status(500).json({ success: false, message: "Lỗi máy chủ!" });
+    }
+});
 module.exports = router;

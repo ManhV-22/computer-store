@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cấu hình Giao diện - Admin</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    <div class="admin-main-wrapper">
+        <div class="main-content admin-settings-page">
+            <h2><i class="fas fa-cogs"></i> Quản lý Giao diện Trang chủ</h2>
+            
+            <div class="card">
+                <h3><i class="fas fa-image"></i> Cấu hình Banner</h3>
+                
+                <div class="setting-item main-banner-group">
+                    <label><strong>Cấu hình Banner Slide chính:</strong></label>
+                    <div class="upload-zone">
+                        <input type="file" id="banner-upload" multiple accept="image/*" style="display: none;">
+                        <label for="banner-upload" class="upload-label">
+                            <i class="fas fa-cloud-upload-alt fa-3x"></i><br>
+                            Bấm vào đây để chọn nhiều ảnh cho Slide
+                        </label>
+                        <div id="preview-banners"></div>
+                    </div>
+                    <button class="btn-primary" onclick="uploadNewBanners()">
+                        <i class="fas fa-upload"></i> Tải ảnh Slide lên hệ thống
+                    </button>
+                </div>
+                
+                <hr class="divider">
+
+                <div class="sub-banners-grid">
+                    <div class="setting-item">
+                        <h3><i class="fas fa-image"></i> Banner Phụ 1</h3>
+                        <input type="file" id="sub-banner-1-input" accept="image/*" class="file-input">
+                        <button class="btn-save" onclick="uploadSubBanner('sub_banner_1')">
+                            <i class="fas fa-save"></i> Lưu Banner 1
+                        </button>
+                    </div>
+
+                    <div class="setting-item">
+                        <h3><i class="fas fa-image"></i> Banner Phụ 2</h3>
+                        <input type="file" id="sub-banner-2-input" accept="image/*" class="file-input">
+                        <button class="btn-save" onclick="uploadSubBanner('sub_banner_2')">
+                            <i class="fas fa-save"></i> Lưu Banner 2
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="setting-item">
+                    <h3><i class="fas fa-bolt"></i> Thời gian kết thúc Flash Sale</h3>
+                    <div class="flex-row">
+                        <input type="datetime-local" id="flash-sale-input" class="date-input">
+                        <button class="btn-flash" onclick="updateFlashSale()">
+                            <i class="fas fa-sync-alt"></i> Cập nhật Flash Sale
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/settings.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

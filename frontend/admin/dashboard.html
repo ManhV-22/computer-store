@@ -23,19 +23,69 @@
         </header>
 
         <div class="main-content">
-            <div class="page-header" style="margin-bottom: 20px;">
-                <h2 style="margin: 0;">📊 Bảng điều khiển</h2>
-            </div>
-            
-            <div id="dashboard-overview">
-                <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; color: #7f8c8d;">
-                    <h3>Dữ liệu tổng quan hệ thống</h3>
-                    <p>Các biểu đồ và số liệu sẽ được hiển thị tại đây.</p>
+            <h2 style="margin-bottom: 25px; color: #2c3e50;">
+                <i class="fas fa-chart-line"></i> Tổng quan hệ thống
+            </h2>
+
+            <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+                
+                <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #2ecc71; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">TỔNG DOANH THU</div>
+                        <div id="total-revenue" style="font-size: 24px; font-weight: bold; color: #2c3e50;">0đ</div>
+                    </div>
+                    <i class="fas fa-money-bill-wave" style="font-size: 30px; color: #2ecc71; opacity: 0.7;"></i>
                 </div>
+
+                <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #3498db; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">ĐƠN HÀNG MỚI</div>
+                        <div id="total-orders" style="font-size: 24px; font-weight: bold; color: #2c3e50;">0</div>
+                    </div>
+                    <i class="fas fa-shopping-cart" style="font-size: 30px; color: #3498db; opacity: 0.7;"></i>
+                </div>
+
+                <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #f1c40f; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">TỔNG SẢN PHẨM</div>
+                        <div id="total-products" style="font-size: 24px; font-weight: bold; color: #2c3e50;">0</div>
+                    </div>
+                    <i class="fas fa-laptop" style="font-size: 30px; color: #f1c40f; opacity: 0.7;"></i>
+                </div>
+
+                <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #e74c3c; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 8px;">KHÁCH HÀNG</div>
+                        <div id="total-users" style="font-size: 24px; font-weight: bold; color: #2c3e50;">0</div>
+                    </div>
+                    <i class="fas fa-users" style="font-size: 30px; color: #e74c3c; opacity: 0.7;"></i>
+                </div>
+
+            </div>
+
+            <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">Đơn hàng mới nhất</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #eee;">
+                            <th style="padding: 12px; color: #fff;">Mã ĐH</th>
+                            <th style="padding: 12px; color: #fff;">Khách hàng</th>
+                            <th style="padding: 12px; color: #fff;">Ngày đặt</th>
+                            <th style="padding: 12px; color: #fff;">Tổng tiền</th>
+                            <th style="padding: 12px; color: #fff;">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-orders-list">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px; color: #7f8c8d;">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
+    <script src="../assets/js/main.js"></script>
     <script src="../assets/js/admin.js"></script>
 </body>
 </html>
