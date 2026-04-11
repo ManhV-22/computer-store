@@ -42,17 +42,30 @@ async function initHomePage() {
                 
                 // Đổ Banner chính
                 const bannerSlider = document.getElementById('main-banner-slider');
-                if (bannerSlider && configs.main_banners) {
-                    try {
-                        const mainBanners = JSON.parse(configs.main_banners || "[]");
-                        bannerSlider.innerHTML = mainBanners.map(img => {
-                            setTimeout(startAutoSlider, 500);
-                            const cleanImg = img.toString().replace(/[\[\]" ]/g, "");
-                            const finalSrc = cleanImg.startsWith('http') ? cleanImg : `${SERVER_URL}/assets/img/banners/${cleanImg}`;
-                            return `<img src="${finalSrc}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'">`;
-                        }).join('');
-                    } catch (e) { console.error("Lỗi parse banner chính:", e); }
-                }
+
+if (bannerSlider && configs.main_banners) {
+    try {
+        const mainBanners = typeof configs.main_banners === "string"
+            ? JSON.parse(configs.main_banners)
+            : configs.main_banners;
+
+        bannerSlider.innerHTML = mainBanners.map(img => {
+            const finalSrc = img.startsWith('http')
+                ? img
+                : `${SERVER_URL}/assets/img/banners/${img}`;
+
+            return `<img src="${finalSrc}" 
+                        style="width:100%; height:100%; object-fit:cover;" 
+                        >`;
+        }).join('');
+
+        // gọi sau khi render xong
+        setTimeout(startAutoSlider, 500);
+
+    } catch (e) {
+        console.error("Lỗi parse banner chính:", e);
+    }
+}
 
                 // Đổ Banner phụ
                 const sub1 = document.getElementById('sub-banner-1');

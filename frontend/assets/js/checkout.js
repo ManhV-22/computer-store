@@ -38,7 +38,7 @@ function renderCheckoutSummary() {
         window.showNotification("🛒 Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm.", "error");
         // Đợi 1.5s để người dùng đọc thông báo rồi mới đẩy về trang chủ
         setTimeout(() => {
-            window.location.href = "http://127.0.0.1:5501/frontend/pages/index.html"; 
+            window.location.href = "http://127.0.0.1:5500/computer-store/frontend/pages/index.html"; 
         }, 1500);
         return;
     }
@@ -149,7 +149,7 @@ async function processCheckout() {
 
             // Đợi 2 giây để khách đọc thông báo xong rồi mới đá về trang chủ
             setTimeout(() => {
-                window.location.href = "http://127.0.0.1:5501/frontend/pages/index.html"; 
+                window.location.href = "http://127.0.0.1:5500/computer-store/frontend/pages/index.html"; 
             }, 2000);
 
         } else {

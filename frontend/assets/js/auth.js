@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.href = '/frontend/admin/dashboard.html'; 
                         } else {
                             // Về trang chủ của người dùng
-                            window.location.href = '/frontend/pages/index.html';
+                            window.location.href = '/computer-store/frontend/pages/index.html';
                         }
                     }
                 } else {
