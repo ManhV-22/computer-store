@@ -1,166 +1,282 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Lấy ID sản phẩm từ URL
+// URL của Backend (Bạn điều chỉnh cho đúng với project của bạn)
+const API_URL = 'http://localhost:3000/api/products'; 
+let currentProduct = null; // Biến lưu toàn bộ data của sản phẩm đang xem
+let selectedVariant = "Đen tuyền (Mặc định)"; // Màu sắc mặc định ban đầu
+document.addEventListener('DOMContentLoaded', () => {
+    loadProductDetail();
+    
+    setupVariantButtons();
+});
+
+async function loadProductDetail() {
+    // 1. Lấy ID từ URL (Ví dụ: detail.html?id=15)
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
-    const container = document.getElementById('product-detail-container');
-    const longDescContainer = document.getElementById('product-long-description');
-    const breadcrumb = document.getElementById('breadcrumb-name');
-
     if (!productId) {
-        container.innerHTML = '<h3 style="text-align: center; color: #e74c3c;">Không tìm thấy mã sản phẩm!</h3>';
+        alert('Không tìm thấy mã sản phẩm!');
+        window.location.href = 'index.html';
         return;
     }
 
     try {
-        // 2. Gọi API lấy chi tiết MỘT sản phẩm
-        // const response = await fetch(`${API_URL}/products/${productId}`);
-        // Tạm thời vẫn lấy hết rồi lọc để demo nếu API chưa sẵn sàng
-        const response = await fetch(`${API_URL}/products`);
-        const result = await response.json();
+        // 2. Gọi API lấy dữ liệu sản phẩm
+        const response = await fetch(`${API_URL}/${productId}`);
+        const product = await response.json();
 
-        if (response.ok && result.success) {
-            // const product = result.data; // Dùng khi API hỗ trợ lấy một SP
-            const product = result.data.find(p => p.id == productId); // Tạm thời vẫn lọc
+        currentProduct = product;
 
-            if (!product) {
-                container.innerHTML = '<h3 style="text-align: center;">Sản phẩm không tồn tại hoặc đã bị xóa.</h3>';
-                return;
+        // Xử lý logic đường dẫn ảnh (Giống như đã fix ở trang chủ)
+        let imgUrl = "https://placehold.co/600x600/eeeeee/999999?text=No+Image";
+        if (product.image) {
+            let cleanImg = product.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
+            if (cleanImg.startsWith('http')) {
+                imgUrl = cleanImg;
+            } else if (cleanImg !== "") {
+                imgUrl = `../assets/img/products/${cleanImg}`;
             }
-
-            // 3. Đổ dữ liệu ra màn hình
-            breadcrumb.innerText = product.name;
-            longDescContainer.innerHTML = product.long_description || product.description || 'Mô tả chi tiết đang được cập nhật.';
-
-            // Giả lập Giá cũ cao hơn giá bán 12%
-            const oldPrice = Number(product.price) * 1.12; 
-
-            // Cấu trúc HTML Chi tiết Sản phẩm Mới (Tương tự nhưng không y hệt mẫu)
-            container.innerHTML = `
-                <div class="product-detail-wrapper">
-                    <div class="product-images">
-                        <div class="main-img-container">
-                            <img class="main-img" src="${product.image || 'https://via.placeholder.com/400'}" alt="${product.name}">
-                        </div>
-                        <div class="thumbnails">
-                            <img src="${product.image || 'https://via.placeholder.com/400'}" alt="Thumb 1">
-                            <img src="https://via.placeholder.com/400?text=Thumb+2" alt="Thumb 2">
-                            <img src="https://via.placeholder.com/400?text=Thumb+3" alt="Thumb 3">
-                        </div>
-                    </div>
-
-                    <div class="product-info">
-                        <h1>${product.name}</h1>
-                        <div class="product-meta">
-                            <div class="product-meta-item">Mã SP: <strong>SP${product.id}</strong></div>
-                            <div class="product-meta-item">Thương hiệu: <strong>${product.brand_name || product.brand || 'ComputerStore'}</strong></div>
-                            <div class="product-meta-item">Tình trạng: <span class="status">✓ Còn hàng</span></div>
-                        </div>
-                        
-                        <div class="price-section">
-                            <span class="product-price">${Number(product.price).toLocaleString('vi-VN')} đ</span>
-                            <span class="old-price">${oldPrice.toLocaleString('vi-VN')} đ</span>
-                            
-                            <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
-                                <div class="promo-section-title">Khuyến mãi & Ưu đãi</div>
-                                <ul class="promo-list">
-                                    <li>Giảm ngay 50.000đ khi thanh toán qua VNPay.</li>
-                                    <li>Tặng chuột không dây Logitech B100.</li>
-                                    <li>Mua kèm bàn phím cơ giảm ngay 10%.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="purchase-actions">
-                            <div class="qty-selector">
-                                <button onclick="let q = document.getElementById('qty'); if(q.value > 1) q.value--">-</button>
-                                <input type="text" id="qty" value="1" readonly>
-                                <button onclick="let q = document.getElementById('qty'); q.value++">+</button>
-                            </div>
-                            <button class="btn-add-cart-large" onclick="addToCartMulti(${product.id}, '${product.name}')">
-                                🛒 THÊM VÀO GIỎ HÀNG
-                            </button>
-                        </div>
-
-                        <div class="gifts-section">
-                            <div class="gifts-section-title">Quà tặng đi kèm</div>
-                            <ul class="gifts-list">
-                                <li><span class="icon">🎁</span> Tặng Balo ComputerStore chính hãng.</li>
-                                <li><span class="icon">🎧</span> Tặng Tai nghe Gaming Edifier.</li>
-                            </ul>
-                        </div>
-
-                        <div class="commitments-section">
-                            <div class="commitment-item">
-                                <span class="icon">🛡️</span>
-                                <span>Bảo hành chính hãng 12-24 tháng.</span>
-                            </div>
-                            <div class="commitment-item">
-                                <span class="icon">🔄</span>
-                                <span>Đổi trả miễn phí trong 7 ngày đầu.</span>
-                            </div>
-                            <div class="commitment-item">
-                                <span class="icon">🚀</span>
-                                <span>Giao hàng hỏa tốc trong 2h tại TP.HCM.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
+
+        // 3. Đổ dữ liệu vào HTML
+        document.getElementById('breadcrumb-name').innerText = product.name;
+        document.getElementById('detail-name').innerText = product.name;
+        document.getElementById('detail-price').innerText = Number(product.price).toLocaleString('vi-VN') + ' ₫';
+        
+        // Đặt ảnh chính và 1 ảnh thumbnail mẫu
+        document.getElementById('main-img').src = imgUrl;
+        document.getElementById('thumb-list').innerHTML = `<img src="${imgUrl}" onclick="document.getElementById('main-img').src='${imgUrl}'">`;
+
+        // Nếu DB của bạn có trường description thì in ra, nếu null thì báo Đang cập nhật
+        if(product.description && product.description !== 'null') {
+            document.getElementById('detail-desc').innerHTML = product.description;
+        }
+
+        loadRelatedProducts(productId);
+        loadSamePriceProducts(productId, product.price);
+        
     } catch (error) {
-        console.error("Lỗi tải chi tiết:", error);
-        container.innerHTML = '<h3 style="text-align: center; color: #e74c3c;">Lỗi kết nối máy chủ.</h3>';
+        console.error('Lỗi khi tải chi tiết sản phẩm:', error);
+        document.getElementById('detail-name').innerText = "Lỗi khi tải dữ liệu sản phẩm.";
     }
-});
-
-// ==========================================
-// CÁC HÀM XỬ LÝ CHỨC NĂNG MUA HÀNG
-// ==========================================
-
-function addToCartMulti(productId, productName) {
-    // 1. KIỂM TRA ĐĂNG NHẬP
-    const user = localStorage.getItem('user');
-    if (!user) {
-        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng! 🔒");
-        window.location.href = 'login.html';
-        return; 
-    }
-
-    const qtyInput = document.getElementById('qty');
-    const quantityToAdd = parseInt(qtyInput.value) || 1;
-
-    // 2. LẤY GIỎ HÀNG TỪ LOCALSTORAGE
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingItem = cart.find(item => item.id == productId);
-
-    if (existingItem) {
-        // Cập nhật số lượng
-        existingItem.quantity += quantityToAdd; 
-    } else {
-        // Thêm mới
-        // Lấy thông tin sản phẩm từ biến product trong DOMContentLoaded (không tiện)
-        // Nên tạm thời chỉ dùng addToCart() của main.js hoặc viết lại.
-        // Cách tốt nhất là addToCart() trong main.js chấp nhận tham số số lượng.
-        // Tạm thời gọi addToCart nhiều lần.
-        for (let i = 0; i < quantityToAdd; i++) {
-            addToCart(productId); // addToCart có alert, sẽ bị nhiều lần. Cần sửa main.js.
-        }
-        alert(`Đã thêm ${quantityToAdd} sản phẩm "${productName}" vào giỏ hàng! 🛒`);
-        updateCartCount();
-        return; // Dừng vì addToCart đã handle
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // 3. CẬP NHẬT GIAO DIỆN
-    updateCartCount();
-    alert(`Đã thêm ${quantityToAdd} sản phẩm "${productName}" vào giỏ hàng! 🛒`);
 }
 
-function buyNow(productId, productName) {
-    addToCartMulti(productId, productName);
-    setTimeout(() => {
-        window.location.href = 'cart.html';
-    }, 500);
+// Hàm tăng giảm số lượng input
+function changeQuantity(amount) {
+    let input = document.getElementById('buy-qty');
+    let currentValue = parseInt(input.value);
+    let newValue = currentValue + amount;
+    if (newValue >= 1) {
+        input.value = newValue;
+    }
+}
+
+// Hàm thêm vào giỏ hàng (Bạn sẽ nối với logic Giỏ hàng sau)
+function addToCartFromDetail() {
+    let qty = document.getElementById('buy-qty').value;
+    alert(`Đã thêm ${qty} sản phẩm vào giỏ hàng! (Chức năng đang hoàn thiện)`);
+}
+
+// Hàm tải sản phẩm liên quan
+async function loadRelatedProducts(currentProductId) {
+    try {
+        // Gọi API lấy toàn bộ sản phẩm (hoặc API lấy theo danh mục nếu Backend hỗ trợ)
+        const response = await fetch(API_URL);
+        const products = await response.json();
+
+        // Lọc bỏ sản phẩm hiện tại đang xem và lấy 5 sản phẩm ngẫu nhiên/mới nhất
+        const related = products.filter(p => p.id != currentProductId).slice(0, 5);
+
+        const container = document.getElementById('related-products-list');
+        let html = '';
+
+        related.forEach(prod => {
+            // Logic xử lý đường dẫn ảnh (giống trang chủ)
+            let imgUrl = "https://placehold.co/400x400/eeeeee/999999?text=No+Image";
+            if (prod.image) {
+                let cleanImg = prod.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
+                if (cleanImg.startsWith('http')) {
+                    imgUrl = cleanImg;
+                } else if (cleanImg !== "") {
+                    imgUrl = `../assets/img/products/${cleanImg}`;
+                }
+            }
+
+            // Tạo mã HTML cho từng thẻ
+            html += `
+                <div class="related-card">
+                    <a href="detail.html?id=${prod.id}">
+                        <img src="${imgUrl}" alt="${prod.name}" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/eeeeee/999999?text=L%E1%BB%97i+%E1%BA%A2nh';">
+                        <h4 class="related-title" title="${prod.name}">${prod.name}</h4>
+                        <div class="related-price">${Number(prod.price).toLocaleString('vi-VN')} ₫</div>
+                    </a>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Lỗi khi tải sản phẩm liên quan:', error);
+        document.getElementById('related-products-list').innerHTML = '<p>Không thể tải sản phẩm liên quan lúc này.</p>';
+    }
+}
+
+// Hàm tải sản phẩm cùng phân khúc giá (+/- 20%)
+async function loadSamePriceProducts(currentProductId, currentPrice) {
+    try {
+        const response = await fetch(API_URL);
+        const products = await response.json();
+
+        // Tính toán khoảng giá: Thấp hơn 20% và cao hơn 20%
+        const minPrice = currentPrice * 0.8;
+        const maxPrice = currentPrice * 1.2;
+
+        // Lọc: Bỏ sản phẩm đang xem VÀ Giá phải nằm trong khoảng min - max
+        const samePriceProducts = products.filter(p => 
+            p.id != currentProductId && 
+            p.price >= minPrice && 
+            p.price <= maxPrice
+        ).slice(0, 5); // Lấy tối đa 5 sản phẩm để vừa 1 hàng
+
+        const container = document.getElementById('same-price-products-list');
+        let html = '';
+
+        if (samePriceProducts.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 20px;">Chưa có sản phẩm nào cùng phân khúc giá.</p>';
+            return;
+        }
+
+        samePriceProducts.forEach(prod => {
+            // Xử lý ảnh giống hệt các phần khác
+            let imgUrl = "https://placehold.co/400x400/eeeeee/999999?text=No+Image";
+            if (prod.image) {
+                let cleanImg = prod.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
+                if (cleanImg.startsWith('http')) {
+                    imgUrl = cleanImg;
+                } else if (cleanImg !== "") {
+                    imgUrl = `../assets/img/products/${cleanImg}`;
+                }
+            }
+
+            html += `
+                <div class="related-card">
+                    <a href="detail.html?id=${prod.id}">
+                        <img src="${imgUrl}" alt="${prod.name}" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/eeeeee/999999?text=L%E1%BB%97i+%E1%BA%A2nh';">
+                        <h4 class="related-title" title="${prod.name}">${prod.name}</h4>
+                        <div class="related-price">${Number(prod.price).toLocaleString('vi-VN')} ₫</div>
+                    </a>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Lỗi khi tải sản phẩm cùng phân khúc:', error);
+    }
+}
+
+// Hàm xử lý khi khách hàng bấm lưu Voucher
+function saveVoucher(buttonElement) {
+    // Đổi chữ thành Đã lưu
+    buttonElement.innerText = "Đã lưu";
+    
+    // Thêm class 'saved' để đổi sang màu xanh lá
+    buttonElement.classList.add("saved");
+    
+    // Khóa nút lại, không cho bấm 2 lần
+    buttonElement.disabled = true;
+    
+    // Tùy chọn: Hiện thông báo nhỏ (bạn có thể bỏ dòng này nếu không thích)
+    // alert("Bạn đã lưu thành công mã giảm giá!");
+}
+
+// Hàm xử lý chọn phiên bản/màu sắc
+function setupVariantButtons() {
+    const variantBtns = document.querySelectorAll('.variant-btn');
+    variantBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Xóa class 'active' khỏi tất cả các nút
+            variantBtns.forEach(b => b.classList.remove('active'));
+            
+            // Thêm class 'active' vào nút vừa click
+            this.classList.add('active');
+            
+            // Cập nhật lại biến màu sắc đang chọn
+            selectedVariant = this.innerText;
+        });
+    });
+}
+
+
+function changeQuantity(amount) {
+    const qtyInput = document.getElementById('buy-qty');
+    let currentQty = parseInt(qtyInput.value);
+    
+    // Nếu nhập bậy bạ không phải số, set về 1
+    if (isNaN(currentQty)) currentQty = 1;
+    
+    let newQty = currentQty + amount;
+    
+    // Đảm bảo số lượng mua tối thiểu luôn là 1
+    if (newQty >= 1) {
+        qtyInput.value = newQty;
+    }
+}
+
+// Xử lý Thêm vào giỏ hàng
+function addToCartFromDetail() {
+    if (!currentProduct) {
+        alert("Dữ liệu sản phẩm chưa tải xong, vui lòng đợi chút nhé!");
+        return;
+    }
+
+    const quantity = parseInt(document.getElementById('buy-qty').value) || 1;
+    
+    // 1. Lấy giỏ hàng cũ từ localStorage (nếu chưa có thì tạo mảng rỗng)
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // 2. Tạo object lưu thông tin món hàng khách vừa chọn
+    // Lấy ảnh đầu tiên để làm ảnh đại diện trong giỏ hàng
+    let firstImage = "https://placehold.co/100x100";
+    if (currentProduct.image) {
+        let cleanImg = currentProduct.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
+        firstImage = cleanImg.startsWith('http') ? cleanImg : `../assets/img/${cleanImg}`;
+    }
+
+    const cartItem = {
+        id: currentProduct.id,
+        name: currentProduct.name,
+        price: currentProduct.price,
+        image: firstImage,
+        variant: selectedVariant, // Màu sắc đã chọn
+        quantity: quantity
+    };
+
+    // 3. Kiểm tra: Nếu sản phẩm VÀ màu sắc này đã có trong giỏ -> Chỉ cộng dồn số lượng
+    const existingItemIndex = cart.findIndex(item => item.id === cartItem.id && item.variant === cartItem.variant);
+    
+    if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += quantity;
+    } else {
+        // Nếu chưa có thì thêm mới vào mảng
+        cart.push(cartItem);
+    }
+
+    // 4. Lưu ngược lại vào localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    alert(`Đã thêm ${quantity} sản phẩm (${selectedVariant}) vào giỏ hàng thành công!`);
+    
+    // Tùy chọn: Nếu bạn có icon giỏ hàng trên header, gọi hàm cập nhật số lượng ở đây
+    // updateCartIconCount();
+}
+
+// Xử lý Mua ngay (Thêm vào giỏ rồi chuyển trang luôn)
+function buyNow() {
+    // Gọi hàm thêm vào giỏ hàng trước
+    addToCartFromDetail();
+    
+    // Chuyển hướng trình duyệt sang trang giỏ hàng (cart.html)
+    window.location.href = "cart.html"; 
 }

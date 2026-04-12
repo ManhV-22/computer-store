@@ -119,7 +119,7 @@ if (bannerSlider && configs.main_banners) {
             }
         }
 
-        // 4. HIỂN THỊ DANH MỤC NỔI BẬT
+       // 4. HIỂN THỊ DANH MỤC NỔI BẬT
         const categoryGrid = document.getElementById('dynamic-category-grid');
         if (categoryGrid && allProductsData.length > 0) {
             const uniqueCategories = [];
@@ -132,17 +132,15 @@ if (bannerSlider && configs.main_banners) {
                 }
             });
 
-            const icons = ['fa-laptop', 'fa-mobile-alt', 'fa-headphones', 'fa-desktop', 'fa-keyboard', 'fa-mouse', 'fa-tablet-alt'];
+            const icons = ['fa-laptop', 'fa-desktop', 'fa-microchip', 'fa-screwdriver-wrench', 'fa-keyboard', 'fa-mouse', 'fa-headphones'];
             
             if (uniqueCategories.length > 0) {
-                categoryGrid.style.display = "grid";
-                categoryGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(150px, 1fr))";
-                categoryGrid.style.gap = "20px";
-
-                categoryGrid.innerHTML = uniqueCategories.map((c, idx) => `
-                    <div onclick="filterByCategory('${c.id}', '${c.name}')" class="category-item-card">
-                        <i class="fas ${icons[idx % icons.length]}"></i>
-                        <h4>${c.name}</h4>
+                categoryGrid.innerHTML = uniqueCategories.slice(0, 5).map((c, idx) => `
+                    <div onclick="filterByCategory('${c.id}', '${c.name}')" class="category-item-card category-item" style="cursor: pointer; text-align: center;">
+                        <div class="category-icon-wrapper" style="margin: 0 auto 10px;">
+                            <i class="fas ${icons[idx % icons.length]}" style="font-size: 2rem; color: var(--primary-color);"></i>
+                        </div>
+                        <h4 style="margin:0; font-size: 14px;">${c.name}</h4>
                     </div>
                 `).join('');
             }
@@ -190,40 +188,35 @@ if (bannerSlider && configs.main_banners) {
 }
 
 // ==========================================
-// HÀM TẠO GIAO DIỆN SẢN PHẨM (ĐÃ FIX LỖI NÚT BẤM)
+// HÀM TẠO GIAO DIỆN SẢN PHẨM (ĐÃ CHUẨN HOÁ 100% KÍCH THƯỚC)
 // ==========================================
 function generateProductCard(prod) {
-    const firstImage = prod.image ? prod.image.split(',')[0].trim() : "";
+    const firstImage = prod.image ? prod.image.split(',')[0].trim().replace(/[\[\]"']/g, "") : "default.jpg";
+    const imgUrl = firstImage.startsWith('http') ? firstImage : `${SERVER_URL}/assets/img/products/${firstImage}`;
     
-    // ĐÃ FIX: Thêm dấu nháy đơn vào '${prod.id}'
     return `
-        <div class="product-card">
-            <a href="detail.html?id=${prod.id}">
-                <img src="${SERVER_URL}/assets/img/products/${firstImage}" alt="${prod.name}" onerror="this.src='../assets/img/default.jpg'">
-            </a>
-            <div class="product-info">
-                <h4 class="product-title" title="${prod.name}">${prod.name}</h4>
-                <div class="product-price">${Number(prod.price).toLocaleString('vi-VN')} ₫</div>
-            </div>
+        <div class="product-card category-item" style="display: flex; flex-direction: column; height: 100%; border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fff; transition: box-shadow 0.3s; box-sizing: border-box;">
             
-            <div class="product-actions">
-                <button onclick="addToCart('${prod.id}')" class="add-to-cart-btn" title="Thêm vào giỏ">
-                    <i class="fas fa-cart-plus"></i>
+            <a href="detail.html?id=${prod.id}" style="text-decoration: none; color: inherit; flex-grow: 1; display: flex; flex-direction: column;">
+                <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px;" onerror="this.src='https://placehold.co/200x200?text=Lỗi+ảnh'">
+                
+                <h4 title="${prod.name}" style="font-size: 14px; margin: 0 0 10px; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${prod.name}</h4>
+                
+                <div style="color: #d70018; font-weight: bold; font-size: 16px; margin-bottom: 15px; margin-top: auto;">${Number(prod.price).toLocaleString('vi-VN')} ₫</div>
+            </a>
+            
+            <div class="product-actions" style="display: flex; gap: 8px; width: 100%;">
+                <button onclick="addToCart('${prod.id}')" title="Thêm vào giỏ" style="height: 40px; width: 45px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; background: #fff; color: #e74c3c; border: 1px solid #e74c3c; border-radius: 5px; cursor: pointer; transition: 0.2s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </button>
-                <button onclick="buyNow('${prod.id}')" class="buy-now-btn">
+                
+                <button onclick="buyNow('${prod.id}')" style="height: 40px; flex: 1; display: flex; justify-content: center; align-items: center; background: #e74c3c; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">
                     Mua ngay
                 </button>
             </div>
+            
         </div>
     `;
-}
-
-function filterByCategory(categoryId, categoryName) {
-    const filteredProducts = allProductsData.filter(p => p.category_id == categoryId);
-    renderSpecificResults('category', `📂 Đang xem danh mục: ${categoryName}`, filteredProducts);
-    
-    const brandResult = document.getElementById('brand-filter-result');
-    if(brandResult) brandResult.style.display = 'none';
 }
 
 function filterByBrand(brandId, brandName) {
@@ -249,6 +242,7 @@ function renderSpecificResults(type, title, products) {
         return;
     }
 
+    // ĐÃ CHUẨN HOÁ: Gọi chung hàm tạo thẻ
     listElement.innerHTML = products.map(p => generateProductCard(p)).join('');
 }
 
@@ -272,4 +266,117 @@ function startCountdown(endTime) {
     }, 1000);
 }
 
+// ==========================================
+// CHỨC NĂNG LỌC THEO DANH MỤC
+// ==========================================
+function filterByCategory(categoryId, categoryName) {
+    if (!allProductsData || allProductsData.length === 0) return;
+
+    const filteredProducts = allProductsData.filter(p => p.category_id == categoryId);
+    const resultContainer = document.getElementById('category-filter-result');
+    const resultTitle = document.getElementById('category-result-title');
+    const resultList = document.getElementById('category-filtered-list');
+
+    resultContainer.style.display = 'block';
+
+    if (filteredProducts.length === 0) {
+        resultTitle.innerHTML = `Sản phẩm thuộc danh mục: <strong style="color: #e74c3c;">${categoryName}</strong> (0)`;
+        resultList.innerHTML = '<p style="text-align: center; width: 100%; color: #888;">Đang cập nhật sản phẩm cho danh mục này...</p>';
+        return;
+    }
+
+    resultTitle.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span>Sản phẩm thuộc danh mục: <strong style="color: #e74c3c;">${categoryName}</strong> (${filteredProducts.length})</span>
+            <div>
+                <a href="products.html?category_id=${categoryId}" style="color: #3498db; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px;">Xem tất cả ➔</a>
+                <button onclick="document.getElementById('category-filter-result').style.display='none'" style="border:none; background:none; color:#e74c3c; cursor:pointer; font-weight:bold;">✖ Đóng</button>
+            </div>
+        </div>
+    `;
+
+    const topProducts = filteredProducts.slice(0, 10);
+
+    // ĐÃ CHUẨN HOÁ: Gọi chung hàm tạo thẻ (Không phải viết HTML dài dòng nữa)
+    resultList.innerHTML = topProducts.map(p => generateProductCard(p)).join('');
+
+    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ==========================================
+// CHỨC NĂNG LỌC THEO THƯƠNG HIỆU (GỌI API)
+// ==========================================
+async function showProductsByBrand(brandName, brandId) {
+    try {
+        const resultContainer = document.getElementById('brand-filter-result');
+        const resultTitle = document.getElementById('brand-result-title');
+        const resultList = document.getElementById('brand-filtered-list');
+        
+        resultContainer.style.display = 'block';
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        resultList.innerHTML = '<p style="text-align:center; width:100%;">Đang tải sản phẩm...</p>';
+
+        const response = await fetch(`${SERVER_URL}/api/products?brand_id=${brandId}`);
+        const products = await response.json();
+
+        if (products.length === 0) {
+            resultTitle.innerHTML = `Sản phẩm thuộc thương hiệu: <strong style="color: #f39c12;">${brandName}</strong> (0)`;
+            resultList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">Chưa có sản phẩm nào thuộc thương hiệu này.</p>';
+            return;
+        }
+
+        resultTitle.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span>Sản phẩm thuộc thương hiệu: <strong style="color: #f39c12;">${brandName}</strong> (${products.length})</span>
+                <div>
+                    <a href="products.html?brand_id=${brandId}" style="color: #3498db; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px;">Xem tất cả ➔</a>
+                    <button onclick="document.getElementById('brand-filter-result').style.display='none'" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">✖ Đóng</button>
+                </div>
+            </div>
+        `;
+
+        const topBrandProducts = products.slice(0, 10);
+
+        // ĐÃ CHUẨN HOÁ: Gọi chung hàm tạo thẻ
+        resultList.innerHTML = topBrandProducts.map(p => generateProductCard(p)).join('');
+
+    } catch (error) {
+        console.error("Lỗi khi tải sản phẩm theo thương hiệu:", error);
+    }
+}
+
+// Xoá hàm renderFilteredProducts cũ vì nó đã dư thừa và được thay thế bằng generateProductCard
+
+async function loadBrands() {
+    try {
+        const response = await fetch(`${SERVER_URL}/api/brands`);
+        const brands = await response.json();
+        const brandGrid = document.getElementById('dynamic-brand-grid');
+
+        brandGrid.innerHTML = brands.map(brand => {
+            // Kiểm tra nếu brand.image đã có sẵn đường dẫn assets/
+            // Admin và Pages đều nằm trong thư mục con nên đều dùng ../
+            const imageSource = (brand.image && brand.image !== 'undefined') 
+                ? `../${brand.image}` 
+                : '../assets/img/brands/default.jpg';
+
+            return `
+                <div class="brand-item-card" onclick="showProductsByBrand('${brand.name}', ${brand.id})">
+                    <img src="${imageSource}" 
+                         alt="${brand.name}" 
+                         onerror="this.src='../assets/img/brands/default.jpg'">
+                    <span>${brand.name}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error("Lỗi tải thương hiệu:", error);
+    }
+}
+
+function closeBrandFilter() {
+    document.getElementById('brand-filter-result').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', loadBrands);
 document.addEventListener('DOMContentLoaded', initHomePage);

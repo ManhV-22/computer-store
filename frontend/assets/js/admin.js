@@ -47,8 +47,11 @@ function loadAdminSidebar() {
             <ul class="sidebar-menu">
                 <li><a href="system.html" id="nav-system"><i class="fas fa-server"></i> Hệ thống</a></li> 
                 <li><a href="dashboard.html" id="nav-dashboard"><i class="fas fa-home"></i> Tổng quan</a></li>
-                <li><a href="settings.html" id="nav-settings"><i class="fas fa-home"></i> Cấu hình</a></li>
+                <li><a href="settings.html" id="nav-settings"><i class="fas fa-cog"></i> Cấu hình</a></li> 
                 <li><a href="categories.html" id="nav-categories"><i class="fas fa-tags"></i> Danh mục</a></li>
+                
+                <li><a href="brands.html" id="nav-brands"><i class="fas fa-award"></i> Thương hiệu</a></li>
+                
                 <li><a href="products.html" id="nav-products"><i class="fas fa-laptop"></i> Sản phẩm</a></li>
                 <li><a href="users.html" id="nav-users"><i class="fas fa-users"></i> Người dùng</a></li>
                 <li><a href="orders.html" id="nav-orders"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
@@ -67,6 +70,7 @@ function loadAdminSidebar() {
         'dashboard.html': 'nav-dashboard',
         'settings.html': 'nav-settings',
         'categories.html': 'nav-categories',
+        'brands.html': 'nav-brands', // ĐÃ THÊM KEY NÀY ĐỂ KÍCH HOẠT MENU ACTIVE
         'products.html': 'nav-products',
         'users.html': 'nav-users',
         'orders.html': 'nav-orders',
@@ -195,7 +199,7 @@ async function loadAdminProducts() {
                 <tr>
                     <td>${item.id}</td>
                     <td class="text-center">
-                        <img src="../assets/img/${allImages[0] || 'default.jpg'}" class="admin-img-thumb" onerror="this.src='../assets/img/default.jpg'">
+                        <img src="../assets/img/products/${allImages[0] || 'default.jpg'}" class="admin-img-thumb" onerror="this.src='../assets/img/products/default.jpg'">
                     </td>
                     <td>
                         <div style="font-weight: bold;">${item.name}</div>

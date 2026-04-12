@@ -47,7 +47,7 @@ a { text-decoration: none; color: inherit; }
 
 #dynamic-category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px;
     padding: 10px 0;
     height: auto !important;
@@ -297,37 +297,7 @@ body:has(.admin-main-wrapper) { margin: 0; padding: 0; display: flex; height: 10
    ================================================== */
 
 /* 1. Danh mục nổi bật (Thêm con trỏ bàn tay và hiệu ứng hover) */
-.category-item-card {
-    cursor: pointer !important; /* Hiển thị bàn tay khi trỏ chuột */
-    background: #fff !important;
-    border: 1px solid #eee !important;
-    border-radius: 10px !important;
-    padding: 20px 10px !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
 
-/* Đổi màu viền và icon khi di chuột vào danh mục */
-.category-item-card:hover {
-    border-color: #e74c3c !important;
-    box-shadow: 0 4px 10px rgba(231,76,60,0.1) !important;
-    transform: translateY(-3px) !important; /* Nổi nhẹ lên */
-}
-
-.category-item-card i {
-    font-size: 32px !important;
-    color: #3498db !important; /* Màu xanh nước biển */
-    margin-bottom: 12px !important;
-    transition: color 0.3s ease !important;
-}
-
-.category-item-card:hover i,
-.category-item-card:hover h4 {
-    color: #e74c3c !important; /* Đổi sang đỏ khi hover */
-}
 
 /* 2. Thương hiệu nổi bật (Làm thành nút bo tròn màu cam) */
 .brand-btn {
@@ -349,4 +319,89 @@ body:has(.admin-main-wrapper) { margin: 0; padding: 0; display: flex; height: 10
     background-color: #f39c12 !important;
     color: #fff !important;
     box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2) !important;
+}
+
+/* =========================================
+   STYLE CHO THẺ SẢN PHẨM (ĐỒNG BỘ 100%)
+   ========================================= */
+
+/* Ép tất cả các card sản phẩm trên trang chủ (trong .product-grid) phải bằng chiều cao nhau */
+.product-grid {
+    display: grid;
+    /* Dòng dưới này ép Grid phải tự động căn chỉnh chiều cao của tất cả các ô trong 1 hàng cho bằng ô cao nhất */
+    align-items: stretch; 
+}
+
+/* Ép thẻ sản phẩm có chiều cao 100% của ô lưới, padding đều và flex column */
+.category-item, .product-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    background: #fff;
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none !important; /* Bỏ gạch chân link */
+    color: inherit; /* Giữ màu chữ */
+
+    /* Quan trọng nhất: Flex column và 100% height để card luôn bằng ô lưới */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Phân bổ đều ảnh trên, tên giữa, nút dưới */
+    height: 100%; 
+    box-sizing: border-box; /* Tính toán padding vào chiều rộng/cao */
+}
+
+/* Hover hiệu ứng nảy nhẹ */
+.category-item:hover, .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* KHỐNG CHẾ ẢNH (Ảnh chuẩn hay 'No Image' đều phải nằm gọn) */
+.category-item img, .product-card img {
+    width: 100%;
+    height: 180px; /* Khóa cứng chiều cao ảnh sản phẩm */
+    object-fit: contain; /* Ép ảnh thu nhỏ/phóng to nằm GỌN trong khung, không bị bóp méo */
+    margin-bottom: 15px;
+    flex-shrink: 0; /* Không cho ảnh bị co bóp khi card nhỏ đi */
+}
+
+/* KHỐNG CHẾ TÊN SẢN PHẨM (Chỗ phình to nhất đây) */
+.product-title-clamped {
+    font-size: 14px;
+    margin: 0 0 10px;
+    color: #333;
+    line-height: 20px; /* Xác định chiều cao của 1 dòng */
+    height: 40px; /* Khóa cứng chiều cao tên đúng bằng 2 dòng */
+    overflow: hidden; /* Ẩn phần tên bị thừa */
+
+    /* Công thức "Chém" chữ thừa thành dấu ... sau 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Chỉ hiện 2 dòng */
+    -webkit-box-orient: vertical;
+}
+
+/* STYLE CHO GIÁ TIỀN VÀ NÚT BẤM (Gọn gàng ở đáy card) */
+.category-item p.price, .product-card .product-price {
+    color: #d70018;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 10px;
+    margin-top: auto; /* Tự động đẩy giá tiền và nút xuống đáy card */
+}
+
+.category-item button, .product-card button {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.category-item button:hover, .product-card button:hover {
+    background: #c0392b;
 }
