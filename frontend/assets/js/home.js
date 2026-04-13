@@ -300,49 +300,59 @@ function filterByCategory(categoryId, categoryName) {
     // ĐÃ CHUẨN HOÁ: Gọi chung hàm tạo thẻ (Không phải viết HTML dài dòng nữa)
     resultList.innerHTML = topProducts.map(p => generateProductCard(p)).join('');
 
-    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // ==========================================
 // CHỨC NĂNG LỌC THEO THƯƠNG HIỆU (GỌI API)
 // ==========================================
 async function showProductsByBrand(brandName, brandId) {
-    try {
-        const resultContainer = document.getElementById('brand-filter-result');
-        const resultTitle = document.getElementById('brand-result-title');
-        const resultList = document.getElementById('brand-filtered-list');
-        
-        resultContainer.style.display = 'block';
-        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        resultList.innerHTML = '<p style="text-align:center; width:100%;">Đang tải sản phẩm...</p>';
+    const resultContainer = document.getElementById('brand-filter-result');
+    const resultTitle = document.getElementById('brand-result-title');
+    const resultList = document.getElementById('brand-filtered-list');
 
+    try {
+        // 1. Hiển thị khung và trạng thái đang tải
+        resultContainer.style.display = 'block';
+        resultList.innerHTML = '<p style="text-align:center; width:100%;">Đang tải sản phẩm...</p>';
+        
+        // 2. Gọi API với brand_id (Đảm bảo Backend đã được sửa như hướng dẫn trước)
         const response = await fetch(`${SERVER_URL}/api/products?brand_id=${brandId}`);
+        
+        if (!response.ok) throw new Error("Lỗi kết nối Server");
+        
         const products = await response.json();
 
-        if (products.length === 0) {
+        // 3. Xử lý trường hợp không có dữ liệu
+        if (!products || products.length === 0) {
             resultTitle.innerHTML = `Sản phẩm thuộc thương hiệu: <strong style="color: #f39c12;">${brandName}</strong> (0)`;
-            resultList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">Chưa có sản phẩm nào thuộc thương hiệu này.</p>';
+            resultList.innerHTML = '<p style="text-align: center; width: 100%; color: #888;">Chưa có sản phẩm nào.</p>';
             return;
         }
 
+        // 4. Cập nhật Tiêu đề
         resultTitle.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <span>Sản phẩm thuộc thương hiệu: <strong style="color: #f39c12;">${brandName}</strong> (${products.length})</span>
-                <div>
-                    <a href="products.html?brand_id=${brandId}" style="color: #3498db; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px;">Xem tất cả ➔</a>
-                    <button onclick="document.getElementById('brand-filter-result').style.display='none'" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">✖ Đóng</button>
-                </div>
+                <button onclick="closeBrandFilter()" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">✖ Đóng</button>
             </div>
         `;
 
+        // 5. Render sản phẩm (Chỉ lấy 10 cái đầu tiên như code cũ của bạn)
         const topBrandProducts = products.slice(0, 10);
-
-        // ĐÃ CHUẨN HOÁ: Gọi chung hàm tạo thẻ
-        resultList.innerHTML = topBrandProducts.map(p => generateProductCard(p)).join('');
+        
+        // Dùng biến tạm để render một lần duy nhất, tránh nháy giao diện
+        const htmlContent = topBrandProducts.map(p => generateProductCard(p)).join('');
+        resultList.innerHTML = htmlContent;
 
     } catch (error) {
-        console.error("Lỗi khi tải sản phẩm theo thương hiệu:", error);
+        console.error("Lỗi:", error);
+        resultList.innerHTML = '<p style="color:red; text-align:center;">Không thể tải sản phẩm. Vui lòng kiểm tra kết nối Server!</p>';
     }
+}
+
+// Hàm đóng filter riêng biệt để tránh nhầm lẫn
+function closeBrandFilter() {
+    document.getElementById('brand-filter-result').style.display = 'none';
 }
 
 // Xoá hàm renderFilteredProducts cũ vì nó đã dư thừa và được thay thế bằng generateProductCard

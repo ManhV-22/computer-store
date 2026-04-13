@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setupVariantButtons();
 });
-
 async function loadProductDetail() {
-    // 1. Lấy ID từ URL (Ví dụ: detail.html?id=15)
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
@@ -20,45 +18,72 @@ async function loadProductDetail() {
     }
 
     try {
-        // 2. Gọi API lấy dữ liệu sản phẩm
         const response = await fetch(`${API_URL}/${productId}`);
         const product = await response.json();
 
+        if (!product || product.message) throw new Error("Sản phẩm không tồn tại");
+
         currentProduct = product;
 
-        // Xử lý logic đường dẫn ảnh (Giống như đã fix ở trang chủ)
-        let imgUrl = "https://placehold.co/600x600/eeeeee/999999?text=No+Image";
+        // --- XỬ LÝ HIỂN THỊ DANH SÁCH ẢNH (THUMBNAILS) ---
+        const thumbList = document.getElementById('thumb-list');
+        let mainImgUrl = "https://placehold.co/600x600/eeeeee/999999?text=No+Image";
+        
         if (product.image) {
-            let cleanImg = product.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
-            if (cleanImg.startsWith('http')) {
-                imgUrl = cleanImg;
-            } else if (cleanImg !== "") {
-                imgUrl = `../assets/img/products/${cleanImg}`;
+            // 1. Tách chuỗi và làm sạch ký tự lạ (ngoặc vuông, dấu nháy)
+            const allImages = product.image.split(',')
+                .map(img => img.trim().replace(/[\[\]"']/g, ""))
+                .filter(img => img !== ""); // Loại bỏ các chuỗi rỗng do lỗi cắt cụt
+
+            if (allImages.length > 0) {
+                // 2. Tạo HTML cho danh sách ảnh nhỏ
+                thumbList.innerHTML = allImages.map((imgName, index) => {
+                    const currentUrl = imgName.startsWith('http') 
+                        ? imgName 
+                        : `../assets/img/products/${imgName}`;
+                    
+                    // Lấy ảnh đầu tiên làm ảnh chính
+                    if (index === 0) mainImgUrl = currentUrl;
+
+                    return `
+                        <div class="thumb-item ${index === 0 ? 'active' : ''}" 
+                             onclick="changeMainImage(this, '${currentUrl}')">
+                            <img src="${currentUrl}" 
+                                 onerror="this.parentElement.style.display='none'">
+                        </div>
+                    `;
+                }).join('');
             }
         }
 
         // 3. Đổ dữ liệu vào HTML
+        document.getElementById('main-img').src = mainImgUrl;
         document.getElementById('breadcrumb-name').innerText = product.name;
         document.getElementById('detail-name').innerText = product.name;
         document.getElementById('detail-price').innerText = Number(product.price).toLocaleString('vi-VN') + ' ₫';
         
-        // Đặt ảnh chính và 1 ảnh thumbnail mẫu
-        document.getElementById('main-img').src = imgUrl;
-        document.getElementById('thumb-list').innerHTML = `<img src="${imgUrl}" onclick="document.getElementById('main-img').src='${imgUrl}'">`;
-
-        // Nếu DB của bạn có trường description thì in ra, nếu null thì báo Đang cập nhật
-        if(product.description && product.description !== 'null') {
-            document.getElementById('detail-desc').innerHTML = product.description;
-        }
+        // Xử lý mô tả
+        const descElement = document.getElementById('detail-desc');
+        descElement.innerHTML = (product.description && product.description !== 'null') 
+            ? product.description 
+            : "Thông tin đang được cập nhật...";
 
         loadRelatedProducts(productId);
         loadSamePriceProducts(productId, product.price);
         
     } catch (error) {
-        console.error('Lỗi khi tải chi tiết sản phẩm:', error);
-        document.getElementById('detail-name').innerText = "Lỗi khi tải dữ liệu sản phẩm.";
+        console.error('Lỗi tải chi tiết:', error);
     }
 }
+
+// Hàm đổi ảnh chính (Cần thêm vào để xử lý khi click ảnh nhỏ)
+window.changeMainImage = function(element, url) {
+    document.getElementById('main-img').src = url;
+    
+    // Đổi trạng thái active cho viền ảnh nhỏ
+    document.querySelectorAll('.thumb-item').forEach(item => item.classList.remove('active'));
+    element.classList.add('active');
+};
 
 // Hàm tăng giảm số lượng input
 function changeQuantity(amount) {
@@ -241,7 +266,7 @@ function addToCartFromDetail() {
     let firstImage = "https://placehold.co/100x100";
     if (currentProduct.image) {
         let cleanImg = currentProduct.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
-        firstImage = cleanImg.startsWith('http') ? cleanImg : `../assets/img/${cleanImg}`;
+        firstImage = cleanImg.startsWith('http') ? cleanImg : `../assets/img/products/${cleanImg}`;
     }
 
     const cartItem = {

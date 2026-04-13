@@ -607,7 +607,10 @@ window.saveProduct = async function() {
     
     const imageInput = document.getElementById('p-images');
     if (imageInput.files.length > 0) {
-        formData.append('image', imageInput.files[0]);
+        for (let i = 0; i < imageInput.files.length; i++) {
+            // Tên 'images' ở đây PHẢI KHỚP với tên trong upload.array ở Backend
+            formData.append('images', imageInput.files[i]); 
+        }
     }
 
     // Quyết định URL và Method dựa vào currentEditId
