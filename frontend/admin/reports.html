@@ -32,29 +32,97 @@
                 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
                     <i class="fas fa-coins" style="font-size: 30px; color: #f1c40f; margin-bottom: 10px;"></i>
                     <h4 style="margin: 0; color: #7f8c8d;">Tổng doanh thu</h4>
-                    <h2 style="margin: 10px 0 0 0; color: #e74c3c;">125.500.000đ</h2>
+                    <h2 id="totalRevenue" style="margin: 10px 0 0 0; color: #e74c3c;">0đ</h2>
                 </div>
                 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
                     <i class="fas fa-shopping-bag" style="font-size: 30px; color: #3498db; margin-bottom: 10px;"></i>
                     <h4 style="margin: 0; color: #7f8c8d;">Đơn hàng hoàn tất</h4>
-                    <h2 style="margin: 10px 0 0 0; color: #2c3e50;">342</h2>
+                    <h2 id="totalOrders" style="margin: 10px 0 0 0; color: #2c3e50;">0</h2>
                 </div>
                 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
                     <i class="fas fa-user-plus" style="font-size: 30px; color: #9b59b6; margin-bottom: 10px;"></i>
                     <h4 style="margin: 0; color: #7f8c8d;">Khách hàng mới</h4>
-                    <h2 style="margin: 10px 0 0 0; color: #2c3e50;">89</h2>
+                    <h2 id="totalCustomers" style="margin: 10px 0 0 0; color: #2c3e50;">0</h2>
                 </div>
             </div>
-
-            <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; border: 2px dashed #eee;">
-                <i class="fas fa-chart-bar" style="font-size: 50px; color: #ecf0f1; margin-bottom: 15px;"></i>
-                <h3 style="color: #bdc3c7; margin: 0;">Khu vực hiển thị biểu đồ doanh thu</h3>
-                <p style="color: #95a5a6; font-size: 14px;">(Sử dụng thư viện Chart.js để nhúng biểu đồ vào đây)</p>
+            
+            <div style="height: 300px; width: 100%;">
+                <canvas id="revenueCanvas"></canvas>
             </div>
 
         </div>
     </div>
 
     <script src="../assets/js/admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const API_REPORT_URL = 'http://localhost:3000/api/reports/summary';
+
+        async function loadReports() {
+            try {
+                const response = await fetch(API_REPORT_URL);
+                const result = await response.json();
+
+                if (result.success) {
+                    // Cập nhật các con số thống kê
+                    const formattedRevenue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(result.totalRevenue);
+                    
+                    document.getElementById('totalRevenue').innerText = formattedRevenue;
+                    document.getElementById('totalOrders').innerText = result.totalOrders;
+                    document.getElementById('totalCustomers').innerText = result.totalCustomers;
+
+                    // Vẽ biểu đồ
+                    renderChart(result.chartData);
+                }
+            } catch (error) {
+                console.error("Lỗi tải báo cáo:", error);
+            }
+        }
+
+        let revenueChart; // Biến lưu trữ biểu đồ để tránh lỗi vẽ đè
+
+        function renderChart(chartData) {
+            const ctx = document.getElementById('revenueCanvas').getContext('2d');
+            
+            // Tách dữ liệu thành 2 mảng: labels (ngày tháng) và data (tiền)
+            const labels = chartData.map(item => item.date);
+            const data = chartData.map(item => item.revenue);
+
+            // Nếu đã có biểu đồ cũ thì hủy đi trước khi vẽ mới
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            revenueChart = new Chart(ctx, {
+                type: 'line', // Dạng biểu đồ đường (bạn có thể đổi thành 'bar' nếu thích cột)
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: data,
+                        borderColor: '#2ecc71', // Màu đường vẽ
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)', // Màu nền dưới đường
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3 // Độ cong của đường
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Chạy khi trang web load xong
+        document.addEventListener('DOMContentLoaded', loadReports);
+    </script>
 </body>
 </html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống cửa hàng - ComputerStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="container py-5">
+        <div class="container py-5">
+            <div class="store-header text-center mb-5">
+                <h1 class="fw-bold">Hệ Thống Cửa Hàng Toàn Quốc</h1>
+                <p class="text-muted">Chọn chi nhánh để xem vị trí chính xác trên bản đồ</p>
+            </div>
+
+            <div class="store-layout" style="display: grid; grid-template-columns: 400px 1fr; gap: 30px;">
+                <div class="store-list" id="store-list-container" style="max-height: 600px; overflow-y: auto; padding-right: 10px;">
+                    
+                    <div class="store-card active" 
+                        data-map="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.485530303893!2d105.81881767592357!3d21.013249988313467!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab8230693995%3A0x2f969363577d29d3!2zMTIxIFRowásSBIw6AsIMSQ4buRbmcgxJBhLCBIw6AgTuG7mWksIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1713330000000"
+                        onclick="changeStore(this)">
+                        <div class="store-status">Đang mở cửa</div>
+                        <h4>ComputerStore Thái Hà</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> 121 Thái Hà, Đống Đa, Hà Nội</p>
+                        <p><i class="fas fa-phone"></i> 024.7300.1234</p>
+                        <div class="store-amenities">
+                            <i class="fas fa-parking"></i> <i class="fas fa-wifi"></i> <i class="fas fa-credit-card"></i>
+                        </div>
+                    </div>
+
+                    <div class="store-card" 
+                        data-map="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.90565551525!2d105.7831804!3d21.0364303!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab4a0f8b7253%3A0x3344607f0f62e84!2zNDUgWHXDom4gVGjhu6d5LCBD4bqndSBHaeG6pXksIEjDoCBO4buZaQ!5e0!3m2!1svi!2s!4v1713330000001"
+                        onclick="changeStore(this)">
+                        <h4>ComputerStore Cầu Giấy</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> 45 Xuân Thủy, Cầu Giấy, Hà Nội</p>
+                        <p><i class="fas fa-phone"></i> 024.7300.5678</p>
+                    </div>
+
+                    <div class="store-card" 
+                        data-map="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4602324283403!2d106.6980644!3d10.7744744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f38f9ed179d%3A0x6d9f860d5b4b1e56!2zMTIzIE5ndXnhu4VuIEh14buHLCBC4bq_biBOZ2jDqSwgUXXhuq1uIDEsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1713330000002"
+                        onclick="changeStore(this)">
+                        <h4>ComputerStore Quận 1</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Nguyễn Huệ, Quận 1, TP. HCM</p>
+                        <p><i class="fas fa-phone"></i> 028.7300.9999</p>
+                    </div>
+
+                </div>
+
+                <div class="map-container">
+                    <iframe id="google-map" 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.485530303893!2d105.81881767592357!3d21.013249988313467!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab8230693995%3A0x2f969363577d29d3!2zMTIxIFRowásSBIw6AsIMSQ4buRbmcgxJBhLCBIw6AgTuG7mWksIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1713330000000" 
+                            width="100%" height="600" style="border:0; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

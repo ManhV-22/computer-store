@@ -1,7 +1,5 @@
 // product.js
 
-// Bạn cần đảm bảo API_URL đã được khai báo, ví dụ:
-// const API_URL = 'http://localhost:3000/api'; 
 
 document.addEventListener('DOMContentLoaded', async () => {
     const productContainer = document.getElementById('product-list');

@@ -20,6 +20,7 @@ app.use('/api/brands', require('./routes/brandRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/system', require('./routes/systemRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 // app.use('/api/brands', require('./routes/brandRoutes'));
 
 app.listen(3000, () => {

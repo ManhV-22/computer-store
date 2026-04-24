@@ -42,12 +42,55 @@
         <div class="container flex-between">
             <ul class="main-menu">
                 <li><a href="index.html">Trang chủ</a></li>
-                <li><a href="#">Sản phẩm ▾</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Giới thiệu</a></li>
-                <li><a href="#">Hệ thống cửa hàng</a></li>
+                <li class="nav-item dropdown">
+                    <a href="products.html" class="nav-link">Sản phẩm <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-menu">
+                        <div class="menu-column">
+                            <h5>DANH MỤC</h5>
+                            <ul id="menu-categories">
+                                <li style="color: #ccc;">Đang tải...</li>
+                            </ul>
+                        </div>
+                        <div class="menu-column">
+                            <h5>THƯƠNG HIỆU</h5>
+                            <ul id="menu-brands">
+                                <li style="color: #ccc;">Đang tải...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <!-- <li><a href="blog.html">Blog</a></li> -->
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li><a href="stores.html">Hệ thống cửa hàng</a></li>
             </ul>
             <a href="#" class="promo-link">🎁 Khuyến mãi hôm nay</a>
         </div>
     </div>
+
+    <div id="chatbot-container">
+            <div id="chat-bubble" onclick="toggleChat()">
+                <i class="fas fa-comments"></i>
+                <span class="badge">1</span>
+            </div>
+
+            <div id="chat-window" class="hidden">
+                <div class="chat-header">
+                    <div class="bot-info">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Bot" style="width:35px; height:35px; border-radius:50%; background:white;">
+                        <div>
+                            <strong>Hỗ trợ ComputerStore</strong>
+                            <p><small>Trực tuyến</small></p>
+                        </div>
+                    </div>
+                    <i class="fas fa-times" onclick="toggleChat()"></i>
+                </div>
+                <div id="chat-messages">
+                    <div class="message bot">Chào bạn! Mình là trợ lý ảo của ComputerStore. Bạn cần mình tư vấn sản phẩm nào ạ?</div>
+                </div>
+                <div class="chat-footer">
+                    <input type="text" id="chat-input" placeholder="Nhập câu hỏi của bạn..." onkeypress="if(event.key === 'Enter') handleChat()">
+                    <button onclick="handleChat()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
 </header>

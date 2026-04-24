@@ -1,38 +1,186 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Luôn load sidebar đầu tiên
+    
+    // Luôn load sidebar
     loadAdminSidebar();
+    
 
-    // Kiểm tra từng trang để gọi hàm tương ứng
-    if (document.getElementById('total-revenue')) {
+    // Phân luồng load dữ liệu theo trang hiện tại
+    const path = window.location.pathname;
+    
+    if (path.includes('index.html') || path === '/') {
+        loadHomeData();
+    }
+    if (path.includes('dashboard.html')) {
         loadDashboardStats();
     }
-    
-    if (document.getElementById('category-list')) {
+    if (path.includes('system.html')) {
+        loadSystemDashboard();
+    }
+    if (path.includes('categories.html')) {
         loadCategories();
     }
-    
-    if (document.getElementById('user-list')) {
-        loadUsers();
+    if (path.includes('products.html')) {
+        loadAdminProducts();
+        loadDropdownData();
+        if (typeof window.setupProductForm === 'function') window.setupProductForm();
     }
     
-    if (document.getElementById('admin-product-list')) {
-        loadAdminProducts();
-        loadDropdownData(); // Load data cho modal thêm sản phẩm
+    // const userTable = document.getElementById('admin-user-list');
+    
+   if (path.includes('users.html')) {
+        if (typeof loadUsers === 'function') loadUsers();
     }
 
-    // Xử lý sự kiện gửi form thêm sản phẩm (nếu có)
-    const addProductForm = document.getElementById('add-product-form');
-    if (typeof window.setupProductForm === 'function') {
-        window.setupProductForm();
+    setTimeout(() => {
+        loadMegaMenu();
+    }, 100); 
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryId = urlParams.get('category');
+    const brandId = urlParams.get('brand');
+
+    // 2. Gọi hàm tải sản phẩm với các tham số này
+    loadProducts({ categoryId, brandId });
+    
+    // 3. Lắng nghe sự kiện thay đổi giá
+    document.getElementById('filter-price')?.addEventListener('change', function() {
+        filterProducts();
+    });
+
+
+    // 1. Khởi tạo Sidebar & Menu (Dùng chung cho các trang)
+    if (typeof loadAdminSidebar === 'function') loadAdminSidebar();
+    
+    setTimeout(() => {
+        if (typeof loadMegaMenu === 'function') loadMegaMenu();
+    }, 100); 
+
+    
+    if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+        if (typeof loadHomeData === 'function') loadHomeData();
     }
     
-    // Tương tự cho các hàm load dữ liệu khác
-    if (typeof loadAdminProducts === 'function') {
-        loadAdminProducts();
+    if (path.includes('products.html')) {
+        // Lấy params từ URL để lọc ngay khi vào trang
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('category');
+        const brandId = urlParams.get('brand');
+        
+        if (typeof loadProducts === 'function') {
+            loadProducts({ categoryId, brandId });
+        }
+        
+        // Lắng nghe sự kiện lọc tại trang sản phẩm
+        document.getElementById('filter-price')?.addEventListener('change', filterProducts);
+        document.getElementById('sort-price')?.addEventListener('change', filterProducts);
+    }
+
+    // Các trang Admin khác
+    if (path.includes('dashboard.html')) loadDashboardStats?.();
+    if (path.includes('system.html')) loadSystemDashboard?.();
+    if (path.includes('categories.html')) loadCategories?.();
+
+    // 3. Xử lý Tìm kiếm (Dùng chung cho toàn bộ trang web)
+    const searchInput = document.querySelector('.search-box input');
+    const searchIcon = document.querySelector('.search-box i');
+
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch(searchInput.value);
+        });
+    }
+
+    if (searchIcon && searchInput) {
+        searchIcon.addEventListener('click', () => performSearch(searchInput.value));
+    }
+
+    // 4. Xử lý Chatbot
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleChat();
+        });
     }
 });
 
+async function loadMegaMenu() {
+    // Lấy đúng 2 thẻ UL theo ID trong HTML bạn gửi
+    const catUl = document.getElementById('menu-categories');
+    const brandUl = document.getElementById('menu-brands');
+
+    try {
+        // 1. Gọi API đồng thời để tiết kiệm thời gian
+        const [resCat, resBrand] = await Promise.all([
+            fetch('http://localhost:3000/api/categories'),
+            fetch('http://localhost:3000/api/brands')
+        ]);
+
+        // 2. Chuyển đổi dữ liệu
+        const categories = await resCat.json();
+        const brands = await resBrand.json();
+
+        // 3. Đổ dữ liệu Danh mục (Vì dữ liệu bạn gửi là mảng trực tiếp [])
+        if (catUl) {
+            if (Array.isArray(categories) && categories.length > 0) {
+                catUl.innerHTML = categories.map(cat => 
+                    `<li><a href="products.html?category=${cat.id}">${cat.name}</a></li>`
+                ).join('');
+            } else {
+                catUl.innerHTML = '<li><a href="#">Không có danh mục</a></li>';
+            }
+        }
+
+        // 4. Đổ dữ liệu Thương hiệu
+        if (brandUl) {
+            if (Array.isArray(brands) && brands.length > 0) {
+                // Lọc những thương hiệu có status = 1 (đang hoạt động)
+                brandUl.innerHTML = brands
+                    .filter(b => b.status == 1) 
+                    .map(brand => 
+                        `<li><a href="products.html?brand=${brand.id}">${brand.name}</a></li>`
+                    ).join('');
+            } else {
+                brandUl.innerHTML = '<li><a href="#">Không có thương hiệu</a></li>';
+            }
+        }
+
+    } catch (error) {
+        console.error("Lỗi khi tải Menu:", error);
+        if (catUl) catUl.innerHTML = '<li style="color:red;">Lỗi kết nối server</li>';
+    }
+}
+
+async function loadHomeData() {
+    try {
+        const resBrand = await fetch('http://localhost:3000/api/brands');
+        const brands = await resBrand.json();
+
+        const homeBrandGrid = document.getElementById('dynamic-brand-grid');
+        if (homeBrandGrid && Array.isArray(brands)) {
+            homeBrandGrid.innerHTML = brands.filter(b => b.status == 1).map(brand => {
+                
+                // XỬ LÝ ĐƯỜNG DẪN ẢNH TẠI ĐÂY
+                let imgUrl = brand.image; 
+                
+                // Nếu đường dẫn không bắt đầu bằng http và không có ../ thì thêm vào
+                if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('../')) {
+                    imgUrl = `../${imgUrl}`; 
+                }
+
+                return `
+                    <div class="brand-item-card" onclick="location.href='products.html?brand=${brand.id}'">
+                        <img src="${imgUrl}" 
+                             alt="${brand.name}" 
+                             onerror="this.src='../assets/img/brands/default.png'">
+                        <span>${brand.name}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    } catch (error) {
+        console.error("Lỗi loadHomeData:", error);
+    }
+}
 // --- HÀM HỖ TRỢ GIAO DIỆN ---
 
 function loadAdminSidebar() {
@@ -57,7 +205,7 @@ function loadAdminSidebar() {
                 <li><a href="orders.html" id="nav-orders"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
                 <li><a href="reports.html" id="nav-reports"><i class="fas fa-chart-bar"></i> Báo cáo</a></li>
                 <li class="menu-divider"></li>
-                <li><a href="../index.html"><i class="fas fa-external-link-alt"></i> Xem cửa hàng</a></li>
+                <li><a href="/frontend/pages/index.html"><i class="fas fa-external-link-alt"></i> Xem cửa hàng</a></li>
                 <li><a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
             </ul>
         </div>
@@ -305,18 +453,6 @@ async function loadSystemStatus() {
     }
 }
 
-// Cập nhật sự kiện khởi tạo trang
-document.addEventListener('DOMContentLoaded', () => {
-    loadAdminSidebar();
-    
-    if (window.location.pathname.includes('dashboard.html')) {
-        loadDashboardStats();
-    }
-    
-    if (window.location.pathname.includes('system.html')) {
-        loadSystemStatus();
-    }
-});
 
 async function loadSystemDashboard() {
     try {
@@ -350,15 +486,7 @@ async function loadSystemDashboard() {
     }
 }
 
-// Gọi hàm khi trang load
-document.addEventListener('DOMContentLoaded', () => {
-    loadAdminSidebar(); // Sidebar luôn load
-    
-    // Nếu đang ở trang system.html thì chạy hàm load hệ thống
-    if (window.location.pathname.includes('system.html')) {
-        loadSystemDashboard();
-    }
-});
+
 
 // Hàm xử lý riêng cho nút làm mới
 async function refreshSystemData() {
@@ -653,4 +781,276 @@ window.saveProduct = async function() {
 // Modal Toggle (Dùng chung)
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+async function loadProducts(filters = {}) {
+    try {
+        const productGrid = document.getElementById('product-grid');
+        if (!productGrid) return; // Thoát nếu không phải trang sản phẩm
 
+        productGrid.innerHTML = '<div class="col-12 text-center"><p>Đang tải sản phẩm...</p></div>';
+
+        // Lấy dữ liệu từ API
+        const res = await fetch(`${window.API_URL}/products`);
+        let products = await res.json();
+        products = Array.isArray(products) ? products : (products.data || []);
+
+        // --- BẮT ĐẦU QUY TRÌNH LỌC ---
+        
+        // 1. Lọc theo Tìm kiếm (Từ URL ?search=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchKeyword = urlParams.get('search')?.toLowerCase();
+        if (searchKeyword) {
+            products = products.filter(p => p.name.toLowerCase().includes(searchKeyword));
+            // Cập nhật tiêu đề trang
+            const titleEl = document.querySelector('.section-title');
+            if (titleEl) titleEl.innerText = `Kết quả tìm kiếm cho: "${searchKeyword}"`;
+        }
+
+        // 2. Lọc theo Danh mục (categoryId)
+        const catId = filters.categoryId || urlParams.get('category');
+        if (catId && catId !== 'all') {
+            products = products.filter(p => p.category_id == catId);
+        }
+
+        // 3. Lọc theo Thương hiệu (brandId)
+        const bId = filters.brandId || urlParams.get('brand');
+        if (bId && bId !== 'all') {
+            products = products.filter(p => p.brand_id == bId);
+        }
+
+        // 4. Lọc theo Khoảng giá
+        const priceRange = filters.priceRange || document.getElementById('filter-price')?.value;
+        if (priceRange && priceRange !== 'all') {
+            products = products.filter(p => {
+                const price = Number(p.price);
+                if (priceRange === '0-10') return price < 10000000;
+                if (priceRange === '10-20') return price >= 10000000 && price <= 20000000;
+                if (priceRange === '20-up') return price > 20000000;
+                return true;
+            });
+        }
+
+        // 5. Sắp xếp giá
+        const sortType = filters.sortType || document.getElementById('sort-price')?.value;
+        if (sortType === 'asc') products.sort((a, b) => Number(a.price) - Number(b.price));
+        else if (sortType === 'desc') products.sort((a, b) => Number(b.price) - Number(a.price));
+
+        // --- HIỂN THỊ ---
+        if (products.length === 0) {
+            productGrid.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <img src="../assets/img/no-product.png" style="width:100px; opacity:0.5" onerror="this.style.display='none'">
+                    <p class="mt-3">Không tìm thấy sản phẩm nào phù hợp với yêu cầu của bạn.</p>
+                    <a href="products.html" class="btn btn-outline-danger btn-sm">Xem tất cả sản phẩm</a>
+                </div>`;
+        } else {
+            renderProductGrid(products);
+        }
+
+        // Cập nhật số lượng
+        const countEl = document.getElementById('product-count');
+        if (countEl) countEl.innerText = `${products.length} sản phẩm`;
+
+    } catch (error) {
+        console.error("Lỗi load sản phẩm:", error);
+        if (productGrid) productGrid.innerHTML = '<p class="text-danger">Không thể kết nối đến máy chủ.</p>';
+    }
+}
+
+function renderProductGrid(products) {
+    const grid = document.getElementById('product-grid');
+    if (!grid) return;
+
+    grid.innerHTML = products.map(p => {
+        const imgPath = p.image ? p.image.split(',')[0] : 'default.jpg';
+        const finalImgPath = `../assets/img/products/${imgPath}`;
+        
+        return `
+            <div class="product-card" onclick="goToDetail(${p.id})">
+                <div class="product-image">
+                    <img src="${finalImgPath}" onerror="this.src='../assets/img/products/default.jpg'">
+                </div>
+                <div class="info">
+                    <h3 class="product-name" title="${p.name}">${p.name}</h3>
+                    <p class="product-price">${Number(p.price).toLocaleString('vi-VN')} ₫</p>
+                    <div class="product-actions">
+                        <button class="btn-cart-outline" onclick="event.stopPropagation(); addToCart(${p.id})">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <button class="btn-buy-now" onclick="event.stopPropagation(); buyNow(${p.id})">Mua ngay</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Hàm chuyển trang chi tiết
+function goToDetail(id) {
+    window.location.href = `detail.html?id=${id}`;
+}
+
+
+function filterProducts() {
+    // Lấy giá trị từ các ô Select trên giao diện
+    const categoryId = document.getElementById('filter-category')?.value;
+    const brandId = document.getElementById('filter-brand')?.value;
+    const priceRange = document.getElementById('filter-price')?.value;
+    const sortType = document.getElementById('sort-price')?.value;
+
+    // Truyền tất cả vào loadProducts để xử lý
+    loadProducts({ 
+        categoryId: categoryId === 'all' ? null : categoryId, 
+        brandId: brandId === 'all' ? null : brandId,
+        priceRange,
+        sortType
+    });
+}
+
+function changeStore(element) {
+    // 1. Lấy link bản đồ từ thuộc tính data-map của thẻ vừa click
+    const mapUrl = element.getAttribute('data-map');
+    
+    // 2. Tìm thẻ iframe bản đồ và thay đổi src
+    const mapIframe = document.getElementById('google-map');
+    if (mapIframe) {
+        mapIframe.src = mapUrl;
+    }
+
+    // 3. Xử lý giao diện (Xóa class active ở các thẻ khác, thêm vào thẻ hiện tại)
+    const allCards = document.querySelectorAll('.store-card');
+    allCards.forEach(card => card.classList.remove('active'));
+    element.classList.add('active');
+
+    // 4. Cuộn mượt lên đầu bản đồ (nếu trên mobile)
+    if (window.innerWidth < 768) {
+        mapIframe.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+
+function performSearch(keyword) {
+    if (!keyword.trim()) return;
+    // Chuyển hướng sang trang sản phẩm kèm tham số tìm kiếm
+    window.location.href = `products.html?search=${encodeURIComponent(keyword.trim())}`;
+}
+
+function performSearch(keyword) {
+    const cleanKeyword = keyword ? keyword.trim() : "";
+    if (!cleanKeyword) return;
+    
+    // Chuyển hướng sang trang sản phẩm với tham số tìm kiếm
+    window.location.href = `products.html?search=${encodeURIComponent(cleanKeyword)}`;
+}
+
+/**
+ * Hàm đóng mở cửa sổ Chat
+ */
+// 2. Gán sự kiện an toàn (Kỹ thuật Event Delegation)
+// Cách này đảm bảo JS luôn bắt được sự kiện dù header.html có load chậm đi nữa
+(function() {
+    // Bắt sự kiện nhấn phím trên toàn bộ tài liệu
+    document.addEventListener('keydown', (e) => {
+        // 1. Nếu nhấn Enter khi đang ở trong ô Tìm kiếm
+        if (e.key === 'Enter' && e.target.matches('.search-box input')) {
+            e.preventDefault(); // Chặn tải lại trang
+            window.performSearch(e.target.value);
+        }
+        
+        // 2. Nếu nhấn Enter khi đang ở trong ô Chatbot
+        if (e.key === 'Enter' && e.target.id === 'chat-input') {
+            e.preventDefault();
+            window.handleChat();
+        }
+    });
+
+    // Bắt sự kiện Click trên toàn bộ tài liệu
+    document.addEventListener('click', (e) => {
+        // Nếu click trúng cái <button> tìm kiếm (hoặc bấm vào icon bên trong nó)
+        const searchBtn = e.target.closest('.search-box button');
+        if (searchBtn) {
+            // Tìm ô input nằm ngay cạnh cái nút đó để lấy từ khóa
+            const input = searchBtn.parentElement.querySelector('input');
+            if (input) window.performSearch(input.value);
+        }
+    });
+})();
+
+let allUsers = [];
+
+// Hàm vẽ bảng riêng biệt để tái sử dụng khi tìm kiếm
+async function loadUsers() {
+    const userTable = document.getElementById('admin-user-list');
+    if (!userTable) return; // Nếu không phải trang users.html thì thoát luôn
+
+    try {
+        const response = await fetch('http://localhost:3000/api/users');
+        const result = await response.json();
+        if (result.success) {
+            allUsers = result.data;
+            renderTable(allUsers);
+        }
+    } catch (error) {
+        console.error("Lỗi tải người dùng:", error);
+    }
+}
+// 1. Tải danh sách người dùng
+async function fetchUsers() {
+    const tbody = document.getElementById('admin-user-list');
+    if (!tbody) return; // Bảo vệ nếu không phải trang users
+
+    try {
+        const response = await fetch('http://localhost:3000/api/users');
+        const result = await response.json();
+        if (result.success) {
+            allUsers = result.data;
+            renderTable(allUsers); // Gọi hàm vẽ bảng
+        }
+    } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+    }
+}
+
+// 2. Vẽ bảng (Sửa ID cho khớp với HTML)
+function renderTable(users) {
+    const tbody = document.getElementById('admin-user-list');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    
+    if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Không tìm thấy người dùng nào.</td></tr>';
+        return;
+    }
+
+    users.forEach(user => {
+        const roleClass = user.role === 'admin' ? 'role-admin' : (user.role === 'employee' ? 'role-employee' : 'role-user');
+        const statusClass = user.status === 1 ? 'status-active' : 'status-locked';
+        const statusText = user.status === 1 ? 'Hoạt động' : 'Đã khóa';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${user.id}</td>
+            <td><strong>${user.name}</strong><br><small style="color:#7f8c8d">@${user.name.replace(/\s+/g, '').toLowerCase()}</small></td>
+            <td>${user.email}</td>
+            <td><span class="badge ${roleClass}">${user.role.toUpperCase()}</span></td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td style="text-align: right;">
+                <button onclick="openModal('edit', ${user.id})" class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
+                <button onclick="toggleStatus(${user.id}, ${user.status})" class="action-btn ${user.status === 1 ? 'btn-lock' : 'btn-unlock'}">
+                    <i class="fas ${user.status === 1 ? 'fa-lock' : 'fa-unlock'}"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// 3. Lắng nghe tìm kiếm (Dùng ID user-search từ HTML)
+document.getElementById('user-search')?.addEventListener('input', function(e) {
+    const keyword = e.target.value.toLowerCase();
+    const filtered = allUsers.filter(user => 
+        user.name.toLowerCase().includes(keyword) || 
+        user.email.toLowerCase().includes(keyword)
+    );
+    renderTable(filtered);
+});

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function renderCart() {
     const wrapper = document.getElementById('cart-items-wrapper');
     const countLabel = document.getElementById('cart-item-count');
-    const headerCartCount = document.getElementById('cart-count'); // Sửa thành ID
+    const headerCartCount = document.getElementById('cart-count'); 
     
     if (!wrapper) return;
 
@@ -37,19 +37,36 @@ function renderCart() {
         subtotal += itemTotal;
         totalQty += (item.quantity || 1);
 
+        // --- CHỖ SỬA QUAN TRỌNG: XỬ LÝ ẢNH ĐỂ KHÔNG BỊ LỖI 404 ---
+        let displayImg = '../assets/img/products/default.jpg'; // Ảnh mặc định
+        
+        if (item.image) {
+            // 1. Tách chuỗi ảnh và lấy tấm đầu tiên
+            const firstImgName = item.image.split(',')[0].trim().replace(/[\[\]"']/g, "");
+            
+            // 2. Kiểm tra xem là link URL (http) hay file trong thư mục local
+            if (firstImgName.startsWith('http')) {
+                displayImg = firstImgName;
+            } else if (firstImgName !== "") {
+                displayImg = `../assets/img/products/${firstImgName}`;
+            }
+        }
+        // --- HẾT PHẦN SỬA ---
+
         const oldPriceHtml = item.oldPrice ? `<div class="price-old">${Number(item.oldPrice).toLocaleString('vi-VN')}đ</div>` : '';
 
         wrapper.innerHTML += `
             <div class="cart-item">
                 <div class="item-img-box">
-                    <img src="${item.image || '../assets/images/default-prod.png'}" alt="${item.name}">
+                    <img src="${displayImg}" alt="${item.name}" 
+                         onerror="this.src='../assets/img/products/default.jpg'">
                 </div>
                 <div class="item-details">
                     <h4>${item.name}</h4>
                     <div class="item-meta">
                         <span>Mã SP: ${item.sku || 'N/A'}</span>
                         <span>|</span>
-                        <span>Màu: ${item.color || 'Mặc định'}</span>
+                        <span>Màu: ${item.variant || 'Mặc định'}</span>
                     </div>
                     <div class="item-stock">✓ Còn hàng</div>
                 </div>
@@ -75,7 +92,6 @@ function renderCart() {
     if (headerCartCount) headerCartCount.innerText = totalQty;
     updateSummary(subtotal);
 }
-
 function updateQty(index, change) {
     if (cartItems[index].quantity + change >= 1) {
         cartItems[index].quantity += change;

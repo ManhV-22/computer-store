@@ -1,1 +1,53 @@
 <!-- products.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sản phẩm - ComputerStore</title>
+    <link rel="stylesheet" href="../assets/css/style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-placeholder"></div> 
+
+    <div class="container product-page-container">
+        <div class="product-layout">
+            
+            <aside class="filter-sidebar">
+                <h3>Bộ lọc</h3>
+                
+                <div class="filter-group">
+                    <h4>Giá sản phẩm</h4>
+                    <select id="filter-price" class="filter-select" onchange="filterProducts()">
+                        <option value="all">Tất cả giá</option>
+                        <option value="0-10">Dưới 10 triệu</option>
+                        <option value="10-20">10 - 20 triệu</option>
+                        <option value="20-up">Trên 20 triệu</option>
+                    </select>
+
+                    <select id="sort-price" class="filter-select" onchange="filterProducts()">
+                        <option value="default">Mặc định</option>
+                        <option value="asc">Giá thấp đến cao</option>
+                        <option value="desc">Giá cao đến thấp</option>
+                    </select>
+            </aside>
+
+            <main class="product-main">
+                <div class="product-info-bar">
+                    <h2 id="current-filter-title">Tất cả sản phẩm</h2>
+                    <p id="product-count">Đang tải...</p>
+                </div>
+
+                <div id="product-grid" class="product-grid">
+                    </div>
+            </main>
+
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="../assets/js/main.js"></script>  
+    <script src="../assets/js/admin.js"></script> 
+</body>
+</html>

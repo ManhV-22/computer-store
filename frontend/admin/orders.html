@@ -32,6 +32,182 @@
         </div>
     </div>
 
+    <div id="orderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #fff; padding: 25px; border-radius: 8px; width: 400px; max-width: 90%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0;">Cập nhật chi tiết đơn hàng</h3>
+                <span onclick="closeOrderModal()" style="cursor: pointer; font-size: 20px; font-weight: bold;">&times;</span>
+            </div>
+            <input type="hidden" id="editOrderId">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Số điện thoại:</label>
+                <input type="text" id="editOrderPhone" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Địa chỉ giao hàng:</label>
+                <textarea id="editOrderAddress" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="text-align: right;">
+                <button onclick="closeOrderModal()" style="padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; background: #95a5a6; color: white;">Hủy</button>
+                <button onclick="saveOrderDetails()" style="padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; background: #2ecc71; color: white;">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../assets/js/admin.js"></script>
+    <script>
+        const API_ORDER_URL = 'http://localhost:3000/api/orders';
+        let danhSachDonHang = []; 
+
+        // 1. TẢI DỮ LIỆU
+        async function fetchOrders() {
+            try {
+                const response = await fetch(API_ORDER_URL);
+                const result = await response.json();
+                
+                if(result.success || result.data || Array.isArray(result)) {
+                    // Xử lý linh hoạt format trả về của backend
+                    danhSachDonHang = result.data || result;
+                    if(!Array.isArray(danhSachDonHang)) danhSachDonHang = [];
+                    renderOrderTable(danhSachDonHang);
+                }
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu đơn hàng:", error);
+            }
+        }
+
+        // 2. HIỂN THỊ BẢNG
+        function renderOrderTable(orders) {
+            const tbody = document.querySelector('table tbody'); 
+            tbody.innerHTML = '';
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Chưa có đơn hàng nào.</td></tr>';
+                return;
+            }
+
+            orders.forEach(order => {
+                // Xử lý ngày tháng
+                const orderDate = new Date(order.created_at).toLocaleString('vi-VN');
+                
+                // Xử lý tiền tệ từ cột total_price
+                const totalAmount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_price || 0);
+
+                // Giao diện Khách hàng (Hiển thị User ID, SĐT, Địa chỉ)
+                const customerInfo = `
+                    <strong>User ID: ${order.user_id}</strong><br>
+                    <small style="color: #34495e;"><i class="fas fa-phone"></i> ${order.phone || 'Chưa cập nhật'}</small><br>
+                    <small style="color: #7f8c8d; display: inline-block; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-map-marker-alt"></i> ${order.address || 'Chưa cập nhật'}</small>
+                `;
+
+                // Dropdown trạng thái
+                const statusOptions = `
+                    <select onchange="updateOrderStatus(${order.id}, this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; outline: none;">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Chờ xác nhận</option>
+                        <option value="shipping" ${order.status === 'shipping' ? 'selected' : ''}>Đang giao</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
+                    </select>
+                `;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>#${order.id}</strong></td>
+                    <td>${orderDate}</td>
+                    <td>${customerInfo}</td>
+                    <td style="color: #e74c3c; font-weight: bold;">${totalAmount}</td>
+                    <td>${statusOptions}</td>
+                    <td>
+                        <button onclick="openOrderModal(${order.id})" style="padding: 5px 10px; cursor: pointer; margin-right: 5px; border: 1px solid #3498db; background: transparent; color: #3498db; border-radius: 3px;" title="Sửa thông tin"><i class="fas fa-edit"></i> Sửa</button>
+                        <button onclick="deleteOrder(${order.id})" style="padding: 5px 10px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 3px;" title="Xóa đơn hàng"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. ĐỔI TRẠNG THÁI TRỰC TIẾP (Dropdown)
+        async function updateOrderStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_ORDER_URL}/${id}`, { // Giả sử route PUT /api/orders/:id cập nhật chung
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const result = await response.json();
+                
+                if(!result.success && !response.ok) {
+                    alert("Cập nhật trạng thái thất bại!");
+                    fetchOrders(); // Load lại để reset dropdown
+                }
+            } catch (error) {
+                console.error("Lỗi cập nhật:", error);
+                alert("Lỗi kết nối!");
+                fetchOrders();
+            }
+        }
+
+        // 4. MỞ MODAL SỬA
+        function openOrderModal(id) {
+            const order = danhSachDonHang.find(o => o.id === id);
+            if(order) {
+                document.getElementById('editOrderId').value = order.id;
+                document.getElementById('editOrderPhone').value = order.phone || '';
+                document.getElementById('editOrderAddress').value = order.address || '';
+                document.getElementById('orderModal').style.display = 'flex';
+            }
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').style.display = 'none';
+        }
+
+        // 5. LƯU THÔNG TIN SỬA
+        async function saveOrderDetails() {
+            const id = document.getElementById('editOrderId').value;
+            const phone = document.getElementById('editOrderPhone').value;
+            const address = document.getElementById('editOrderAddress').value;
+
+            try {
+                const response = await fetch(`${API_ORDER_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone, address: address })
+                });
+                
+                if(response.ok) {
+                    closeOrderModal();
+                    fetchOrders();
+                } else {
+                    alert("Lưu thông tin thất bại!");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi kết nối khi lưu!");
+            }
+        }
+
+        // 6. XÓA ĐƠN HÀNG
+        async function deleteOrder(id) {
+            if(confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN đơn hàng #${id} không?`)) {
+                try {
+                    const response = await fetch(`${API_ORDER_URL}/${id}`, { method: 'DELETE' });
+                    if(response.ok) {
+                        fetchOrders();
+                    } else {
+                        alert("Không thể xóa đơn hàng!");
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi xóa:", error);
+                }
+            }
+        }
+
+        // Khởi chạy
+        document.addEventListener('DOMContentLoaded', fetchOrders);
+    </script>
 </body>
 </html>
