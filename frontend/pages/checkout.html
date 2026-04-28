@@ -83,18 +83,42 @@
 
                     <h3 style="margin-top: 30px;">💳 Phương thức thanh toán</h3>
                     <div class="payment-methods">
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="cod" checked>
-                            <strong>Thanh toán khi nhận hàng (COD)</strong>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="momo">
-                            <strong>Thanh toán qua Ví MoMo</strong>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="banking">
-                            <strong>Chuyển khoản ngân hàng (Internet Banking)</strong>
-                        </label>
+                        <div class="payment-option">
+                            <label>
+                                <input type="radio" name="payment" value="cod" checked> 
+                                Thanh toán khi nhận hàng (COD)
+                            </label>
+                        </div>
+
+                        <div class="payment-option">
+                            <label>
+                                <input type="radio" name="payment" value="momo"> 
+                                Thanh toán qua Ví MoMo
+                            </label>
+                            <div id="momo-info" style="display: none; margin-top: 15px; padding: 15px; background-color: #fcebeb; border: 1px solid #d70018; border-radius: 8px; text-align: center;">
+                                <p style="margin-bottom: 10px; font-weight: bold; color: #a50064;">Quét mã QR để thanh toán MoMo</p>
+                                <img src="../assets/img/qr-momo.jpg" alt="Mã QR MoMo" style="width: 150px; height: 150px; object-fit: cover; margin: 0 auto; display: block; border-radius: 8px;">
+                                <p style="margin-top: 10px; font-size: 0.9rem;">SĐT: <strong>0963.xxx.xxx</strong> - Tên: <strong>ADMIN COMPUTERSTORE</strong></p>
+                                <p style="font-size: 0.8rem; color: #666;">*Vui lòng ghi nội dung: Thanh toan [Tên của bạn]</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-option">
+                            <label>
+                                <input type="radio" name="payment" value="banking"> 
+                                Chuyển khoản ngân hàng (Internet Banking)
+                            </label>
+                            <div id="banking-info" style="display: none; margin-top: 15px; padding: 15px; background-color: #e8f4fd; border: 1px solid #007bff; border-radius: 8px; text-align: center;">
+                                <p style="margin-bottom: 10px; font-weight: bold; color: #0056b3;">Thông tin chuyển khoản</p>
+                                <img src="../assets/img/qr-bank.jpg" alt="Mã QR Ngân Hàng" style="width: 150px; height: 150px; object-fit: cover; margin: 0 auto; display: block; border-radius: 8px;">
+                                <div style="margin-top: 10px; font-size: 0.9rem; text-align: left; display: inline-block;">
+                                    <p>🏦 Ngân hàng: <strong>Vietcombank</strong></p>
+                                    <p>💳 Số tài khoản: <strong>1010101010</strong></p>
+                                    <p>👤 Chủ tài khoản: <strong>ADMIN COMPUTERSTORE</strong></p>
+                                </div>
+                                <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">*Vui lòng ghi nội dung: Thanh toan [Tên của bạn]</p>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -125,5 +149,6 @@
         <div id="footer-placeholder"></div>
         <script src="../assets/js/main.js"></script>
         <script src="../assets/js/checkout.js"></script>
+        <script src="../assets/js/chatbot.js"></script>
     </body>
     </html>

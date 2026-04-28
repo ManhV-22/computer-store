@@ -20,11 +20,11 @@
                     <p style="color: #7f8c8d; margin-top: 5px;">Phân tích doanh thu và hiệu suất bán hàng</p>
                 </div>
                 
-                <select style="padding: 8px 15px; border-radius: 6px; border: 1px solid #ddd; outline: none;">
-                    <option>Hôm nay</option>
-                    <option>Tuần này</option>
-                    <option>Tháng này</option>
-                    <option>Năm nay</option>
+                <select id="timeFilter" style="padding: 8px 15px; border-radius: 6px; border: 1px solid #ddd; outline: none;">
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                    <option value="year" selected>Năm nay</option> 
                 </select>
             </div>
 
@@ -58,10 +58,13 @@
 
     <script>
         const API_REPORT_URL = 'http://localhost:3000/api/reports/summary';
+        let revenueChart; // Biến lưu trữ biểu đồ để tránh lỗi vẽ đè
 
-        async function loadReports() {
+        // Thêm tham số timeframe vào hàm
+        async function loadReports(timeframe = 'year') {
             try {
-                const response = await fetch(API_REPORT_URL);
+                // Bắn thêm biến time lên URL để Backend biết đường lọc
+                const response = await fetch(`${API_REPORT_URL}?time=${timeframe}`);
                 const result = await response.json();
 
                 if (result.success) {
@@ -80,32 +83,28 @@
             }
         }
 
-        let revenueChart; // Biến lưu trữ biểu đồ để tránh lỗi vẽ đè
-
         function renderChart(chartData) {
             const ctx = document.getElementById('revenueCanvas').getContext('2d');
             
-            // Tách dữ liệu thành 2 mảng: labels (ngày tháng) và data (tiền)
             const labels = chartData.map(item => item.date);
             const data = chartData.map(item => item.revenue);
 
-            // Nếu đã có biểu đồ cũ thì hủy đi trước khi vẽ mới
             if (revenueChart) {
                 revenueChart.destroy();
             }
 
             revenueChart = new Chart(ctx, {
-                type: 'line', // Dạng biểu đồ đường (bạn có thể đổi thành 'bar' nếu thích cột)
+                type: 'line', 
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Doanh thu (VNĐ)',
                         data: data,
-                        borderColor: '#2ecc71', // Màu đường vẽ
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)', // Màu nền dưới đường
+                        borderColor: '#2ecc71', 
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)', 
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.3 // Độ cong của đường
+                        tension: 0.3 
                     }]
                 },
                 options: {
@@ -122,7 +121,18 @@
         }
 
         // Chạy khi trang web load xong
-        document.addEventListener('DOMContentLoaded', loadReports);
+        document.addEventListener('DOMContentLoaded', () => {
+            const timeFilter = document.getElementById('timeFilter');
+            
+            // 1. Gọi dữ liệu lần đầu tiên theo giá trị mặc định của select (year)
+            loadReports(timeFilter.value);
+
+            // 2. Lắng nghe mỗi khi người dùng đổi lựa chọn
+            timeFilter.addEventListener('change', (e) => {
+                const selectedTime = e.target.value;
+                loadReports(selectedTime);
+            });
+        });
     </script>
 </body>
 </html>

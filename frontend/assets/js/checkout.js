@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 2. Tự động điền thông tin khách hàng nếu đã đăng nhập
     fillUserInfo();
+
+    setupPaymentToggle();
 });
 
 /**
@@ -29,6 +31,9 @@ function fillUserInfo() {
 /**
  * Hiển thị tóm tắt đơn hàng ở sidebar
  */
+/**
+ * Hiển thị tóm tắt đơn hàng ở sidebar
+ */
 function renderCheckoutSummary() {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const container = document.getElementById('checkout-items-list');
@@ -36,7 +41,6 @@ function renderCheckoutSummary() {
     // Nếu giỏ hàng trống, không cho ở lại trang thanh toán
     if (cart.length === 0) {
         window.showNotification("🛒 Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm.", "error");
-        // Đợi 1.5s để người dùng đọc thông báo rồi mới đẩy về trang chủ
         setTimeout(() => {
             window.location.href = "/frontend/pages/index.html";
         }, 1500);
@@ -50,9 +54,17 @@ function renderCheckoutSummary() {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
 
+        // --- ĐOẠN XỬ LÝ ẢNH MỚI ---
+        // Cắt chuỗi ảnh bằng dấu phẩy và lấy ảnh đầu tiên (index 0)
+        let displayImage = item.image;
+        if (displayImage && displayImage.includes(',')) {
+            displayImage = displayImage.split(',')[0].trim();
+        }
+        // ---------------------------
+
         container.innerHTML += `
             <div class="order-item" style="display: flex; gap: 15px; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
-                <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #ddd;">
+                <img src="/frontend/assets/img/products/${displayImage}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #ddd;">
                 <div class="order-item-info" style="flex: 1;">
                     <div class="order-item-name" style="font-weight: bold; font-size: 0.9rem;">${item.name}</div>
                     <div class="order-item-qty" style="font-size: 0.8rem; color: #666;">Số lượng: ${item.quantity}</div>
@@ -167,4 +179,30 @@ async function processCheckout() {
             btnSubmit.style.backgroundColor = "#27ae60";
         }
     }
+}
+
+/**
+ * Lắng nghe sự kiện thay đổi phương thức thanh toán
+ * Để hiển thị mã QR hoặc thông tin tài khoản tương ứng
+ */
+function setupPaymentToggle() {
+    const paymentRadios = document.querySelectorAll('input[name="payment"]');
+    const momoInfo = document.getElementById('momo-info');
+    const bankingInfo = document.getElementById('banking-info');
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            // Bước 1: Ẩn tất cả thông tin đi trước
+            if (momoInfo) momoInfo.style.display = 'none';
+            if (bankingInfo) bankingInfo.style.display = 'none';
+
+            // Bước 2: Hiển thị đúng thông tin của phương thức được chọn
+            const selectedMethod = e.target.value;
+            if (selectedMethod === 'momo' && momoInfo) {
+                momoInfo.style.display = 'block';
+            } else if (selectedMethod === 'banking' && bankingInfo) {
+                bankingInfo.style.display = 'block';
+            }
+        });
+    });
 }

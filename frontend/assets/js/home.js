@@ -17,19 +17,40 @@ function getCategoryIcon(name) {
 // --- HÀM BỔ SUNG: Chạy slider tự động ---
 function startAutoSlider() {
     const slider = document.getElementById('main-banner-slider');
+    if (!slider) return;
+
     const images = slider.querySelectorAll('img');
     if (images.length <= 1) return;
 
+    // 1. CẤU HÌNH KHUNG: Thêm height 100% và reset margin/padding
+    slider.style.display = 'flex'; 
+    slider.style.width = '100%';
+    slider.style.height = '100%'; // Đảm bảo cao bằng khung 380px của cha
+    slider.style.margin = '0';
+    slider.style.padding = '0';
+    slider.style.transition = 'transform 0.8s ease-in-out';
+
+    // 2. ÉP CHỈNH ẢNH: Thêm flexShrink để ảnh không bị bóp méo
+    images.forEach(img => {
+        img.style.minWidth = '100%'; // Quan trọng: Giữ ảnh luôn rộng 100%
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover'; // Lấp đầy khung không bị hở trắng
+        img.style.flexShrink = '0';     // Bổ sung: Chống việc Flexbox tự ý co nhỏ ảnh
+    });
+
     let currentIndex = 0;
+
     setInterval(() => {
         currentIndex = (currentIndex + 1) % images.length;
-        const width = slider.offsetWidth;
-        slider.scrollTo({
-            left: currentIndex * width,
-            behavior: 'smooth'
-        });
-    }, 4000); // 4 giây đổi ảnh 1 lần
+        
+        // Trượt chính xác 100% chiều rộng mỗi lần
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }, 4000);
 }
+
+// Đừng quên gọi hàm khi trang web tải xong
+document.addEventListener('DOMContentLoaded', startAutoSlider);
 
 async function initHomePage() {
     try {
