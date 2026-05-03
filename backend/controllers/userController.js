@@ -1,6 +1,7 @@
 const db = require('../config/db'); // Sử dụng trực tiếp db kết nối chuẩn Promise
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || "YOUR_SECRET_KEY";
 
 // ==========================================
 // 1. API ĐĂNG KÝ
@@ -56,7 +57,7 @@ exports.login = async (req, res) => {
             // Tạo token thật với JWT
             const token = jwt.sign(
                 { id: user.id, role: user.role }, 
-                "YOUR_SECRET_KEY", // Thay bằng biến môi trường process.env.JWT_SECRET sau này
+                JWT_SECRET,
                 { expiresIn: "1d" }
             );
 

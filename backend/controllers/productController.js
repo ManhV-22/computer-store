@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const Review = require('../models/reviewModel');
 
 // Lấy danh sách sản phẩm (Bao gồm cả lọc theo Brand)
 exports.getAllProducts = async (req, res) => {
@@ -35,8 +36,17 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
-        if (rows.length > 0) res.json(rows[0]);
-        else res.status(404).json({ message: "Không tìm thấy" });
+        if (rows.length > 0) {
+            const product = rows[0];
+            const reviews = await Review.getByProductId(req.params.id);
+            const avgRating = await Review.getAverageRating(req.params.id);
+            product.reviews = reviews;
+            product.average_rating = Number(avgRating.avg_rating) || 0;
+            product.total_reviews = Number(avgRating.total_reviews) || 0;
+            res.json(product);
+        } else {
+            res.status(404).json({ message: "Không tìm thấy" });
+        }
     } catch (error) {
         res.status(500).json({ message: "Lỗi server" });
     }
@@ -86,6 +96,30 @@ exports.updateProduct = async (req, res) => {
         res.json({ success: true, message: "Cập nhật thành công!" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Thêm đánh giá sản phẩm
+exports.addReview = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const { rating, comment } = req.body;
+        const userId = req.user && req.user.id ? Number(req.user.id) : null;
+        const score = Number(rating);
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Vui lòng đăng nhập để đánh giá." });
+        }
+
+        if (!score || score < 1 || score > 5) {
+            return res.status(400).json({ success: false, message: "Đánh giá phải từ 1 đến 5 sao" });
+        }
+
+        await Review.add(productId, userId, score, comment || '');
+        res.json({ success: true, message: "Đánh giá đã được thêm!" });
+    } catch (error) {
+        console.error("Lỗi thêm đánh giá:", error.message || error);
+        res.status(500).json({ success: false, message: error.message || "Lỗi Server" });
     }
 };
 

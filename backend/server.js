@@ -3,7 +3,10 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  allowedHeaders: ["Content-Type", "Authorization", "user-id"]
+}));
 app.use(express.json());
 
 // PHỤC VỤ FILE TĨNH: Giúp xem được ảnh từ frontend/assets
@@ -21,6 +24,7 @@ app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/system', require('./routes/systemRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 // app.use('/api/brands', require('./routes/brandRoutes'));
 
 app.listen(3000, () => {

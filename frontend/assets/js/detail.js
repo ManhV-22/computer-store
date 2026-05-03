@@ -1,11 +1,12 @@
 // URL của Backend (Bạn điều chỉnh cho đúng với project của bạn)
-const API_URL = 'http://localhost:3000/api/products'; 
+const API_URL = window.API_URL || 'http://localhost:3000/api';
 let currentProduct = null; // Biến lưu toàn bộ data của sản phẩm đang xem
 let selectedVariant = "Đen tuyền (Mặc định)"; // Màu sắc mặc định ban đầu
 document.addEventListener('DOMContentLoaded', () => {
     loadProductDetail();
     
     setupVariantButtons();
+    setupReviewForm();
 });
 async function loadProductDetail() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -18,7 +19,7 @@ async function loadProductDetail() {
     }
 
     try {
-        const response = await fetch(`${API_URL}/${productId}`);
+        const response = await fetch(`${API_URL}/products/${productId}`);
         const product = await response.json();
 
         if (!product || product.message) throw new Error("Sản phẩm không tồn tại");
@@ -68,8 +69,14 @@ async function loadProductDetail() {
             ? product.description 
             : "Thông tin đang được cập nhật...";
 
+        updateRatingUI(product.average_rating, product.total_reviews);
+        renderReviews(product.reviews);
+
         loadRelatedProducts(productId);
         loadSamePriceProducts(productId, product.price);
+        
+        // Initialize wishlist button
+        initializeWishlistButton(productId);
         
     } catch (error) {
         console.error('Lỗi tải chi tiết:', error);
@@ -105,7 +112,7 @@ function addToCartFromDetail() {
 async function loadRelatedProducts(currentProductId) {
     try {
         // Gọi API lấy toàn bộ sản phẩm (hoặc API lấy theo danh mục nếu Backend hỗ trợ)
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}/products`);
         const products = await response.json();
 
         // Lọc bỏ sản phẩm hiện tại đang xem và lấy 5 sản phẩm ngẫu nhiên/mới nhất
@@ -149,7 +156,7 @@ async function loadRelatedProducts(currentProductId) {
 // Hàm tải sản phẩm cùng phân khúc giá (+/- 20%)
 async function loadSamePriceProducts(currentProductId, currentPrice) {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}/products`);
         const products = await response.json();
 
         // Tính toán khoảng giá: Thấp hơn 20% và cao hơn 20%
@@ -201,6 +208,132 @@ async function loadSamePriceProducts(currentProductId, currentPrice) {
     }
 }
 
+function updateRatingUI(avgRating, totalReviews) {
+    const starContainer = document.getElementById('detail-average-stars');
+    const reviewCount = document.getElementById('detail-review-count');
+    const averageScore = document.getElementById('average-score');
+    const totalCount = document.getElementById('total-reviews');
+    
+    if (!starContainer || !reviewCount) return;
+
+    let stars = '';
+    const fullStars = Math.floor(avgRating);
+    const hasHalfStar = avgRating % 1 >= 0.5;
+
+    for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+            stars += '<i class="fas fa-star"></i>';
+        } else if (i === fullStars + 1 && hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            stars += '<i class="far fa-star"></i>';
+        }
+    }
+
+    starContainer.innerHTML = stars;
+    if (reviewCount) reviewCount.textContent = `(${totalReviews} đánh giá)`;
+    if (averageScore) averageScore.textContent = avgRating.toFixed(1);
+    if (totalCount) totalCount.textContent = `(${totalReviews} đánh giá)`;
+}
+
+function renderReviews(reviews) {
+    const reviewList = document.getElementById('review-list');
+    if (!reviewList) return;
+
+    if (!reviews || reviews.length === 0) {
+        reviewList.innerHTML = '<p>Chưa có đánh giá nào cho sản phẩm này.</p>';
+        return;
+    }
+
+    let html = '';
+    reviews.forEach(review => {
+        const reviewDate = review.created_at ? new Date(review.created_at).toLocaleDateString('vi-VN') : '';
+        html += `
+            <div class="review-item">
+                <div class="review-header">
+                    <span class="review-user">${review.user_name || 'Khách hàng'}</span>
+                    <span class="review-rating">${generateStars(review.rating)}</span>
+                </div>
+                <div class="review-date">${reviewDate}</div>
+                <div class="review-comment">${review.comment || ''}</div>
+            </div>
+        `;
+    });
+
+    reviewList.innerHTML = html;
+}
+
+function generateStars(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        stars += i <= rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+    }
+    return stars;
+}
+
+function setupReviewForm() {
+    const form = document.getElementById('review-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const rating = document.querySelector('input[name="rating"]:checked');
+        const comment = document.getElementById('comment').value.trim();
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (!rating) {
+            alert('Vui lòng chọn số sao để đánh giá.');
+            return;
+        }
+
+        if (!comment) {
+            alert('Vui lòng nhập bình luận của bạn.');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        console.log('Token from localStorage:', token);
+        if (!token) {
+            alert('Vui lòng đăng nhập để gửi đánh giá.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+        console.log('Sending review to:', `${API_URL}/products/${productId}/review`);
+        console.log('With token:', token.substring(0, 20) + '...');
+        const response = await fetch(`${API_URL}/products/${productId}/review`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ rating: Number(rating.value), comment })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                alert('Cảm ơn bạn đã gửi đánh giá!');
+                window.location.reload();
+            } else if (response.status === 401 || response.status === 403) {
+                alert('Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            } else {
+                if (result.message) {
+                    alert(result.message);
+                } else {
+                    alert('Không thể gửi đánh giá.');
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi gửi đánh giá:', error);
+            alert('Có lỗi khi gửi đánh giá. Vui lòng thử lại sau.');
+        }
+    });
+}
+
 // Hàm xử lý khi khách hàng bấm lưu Voucher
 function saveVoucher(buttonElement) {
     // Đổi chữ thành Đã lưu
@@ -214,6 +347,47 @@ function saveVoucher(buttonElement) {
     
     // Tùy chọn: Hiện thông báo nhỏ (bạn có thể bỏ dòng này nếu không thích)
     // alert("Bạn đã lưu thành công mã giảm giá!");
+}
+
+// Hàm khởi tạo nút wishlist
+async function initializeWishlistButton(productId) {
+    try {
+        const wishlistBtn = document.getElementById('wishlist-btn');
+        if (!wishlistBtn) return;
+        
+        // Set product ID
+        wishlistBtn.dataset.productId = productId;
+        
+        // Kiểm tra sản phẩm có trong wishlist không
+        const wishlistItemId = await checkProductInWishlist(productId);
+        
+        if (wishlistItemId) {
+            wishlistBtn.classList.add('in-wishlist');
+            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> <span class="wishlist-text">Đã thích</span>';
+            wishlistBtn.dataset.wishlistItemId = wishlistItemId;
+        }
+        
+        // Add click event handler
+        wishlistBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const prodId = wishlistBtn.dataset.productId;
+            const inWishlist = wishlistBtn.classList.contains('in-wishlist');
+            
+            if (inWishlist) {
+                const itemId = wishlistBtn.dataset.wishlistItemId;
+                if (itemId) {
+                    await removeFromWishlist(itemId);
+                    wishlistBtn.classList.remove('in-wishlist');
+                    wishlistBtn.innerHTML = '<i class="far fa-heart"></i> <span class="wishlist-text">Yêu thích</span>';
+                    delete wishlistBtn.dataset.wishlistItemId;
+                }
+            } else {
+                await addToWishlist(prodId);
+            }
+        });
+    } catch (error) {
+        console.error('Lỗi khởi tạo nút wishlist:', error);
+    }
 }
 
 // Hàm xử lý chọn phiên bản/màu sắc

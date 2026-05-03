@@ -84,6 +84,7 @@ async function loadComponents() {
 
         updateAuthUI();
         updateCartCount();
+        updateWishlistCount();
 
     } catch (error) {
         console.error("Lỗi thực thi loadComponents:", error);
@@ -232,4 +233,37 @@ window.updateCartCount = function() {
         // Ẩn số đi nếu giỏ hàng trống cho giao diện sạch sẽ
         cartCountElement.style.display = totalItems > 0 ? 'inline-block' : 'none';
     }
+}
+
+window.updateWishlistCount = function() {
+    const wishlistCountElement = document.getElementById('wishlist-count');
+    if (!wishlistCountElement) return;
+    
+    // Lấy user ID từ localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.user_id;
+    
+    if (!userId) {
+        wishlistCountElement.style.display = 'none';
+        return;
+    }
+    
+    // Gọi API lấy số lượng wishlist
+    fetch(`${window.API_URL}/wishlist/count`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'user-id': userId
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const count = data.count || 0;
+        wishlistCountElement.innerText = count;
+        wishlistCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+    })
+    .catch(error => {
+        console.error('Lỗi cập nhật số lượng wishlist:', error);
+        wishlistCountElement.style.display = 'none';
+    });
 }

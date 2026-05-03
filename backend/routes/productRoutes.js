@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const productController = require('../controllers/productController');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // Cấu hình Multer để upload ảnh (Giữ nguyên của bạn)
 const storage = multer.diskStorage({
@@ -20,6 +21,7 @@ router.get('/', productController.getAllProducts);
 router.get('/:id', productController.getProductById);
 router.post('/add', upload.array('images', 5), productController.addProduct);
 router.put('/:id', upload.array('images', 5), productController.updateProduct);
+router.post('/:id/review', verifyToken, productController.addReview);
 router.delete('/:id', productController.deleteProduct);
 
 module.exports = router;
